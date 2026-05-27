@@ -1940,7 +1940,7 @@ function sendConfirmEmail(res) {
     service: res.service || '',
     price: res.price || ''
   }).then(() => console.log('Bevestiging email verstuurd'))
-    .catch(err => console.log('Email error:', err));
+    .catch(err => console.log('Email error details:', JSON.stringify(err)));
 }
 
 function sendCancelEmail(res) {
@@ -1953,7 +1953,7 @@ function sendCancelEmail(res) {
     coach: res.coach ? res.coach.charAt(0).toUpperCase() + res.coach.slice(1) : '',
     service: res.service || ''
   }).then(() => console.log('Annulering email verstuurd'))
-    .catch(err => console.log('Email error:', err));
+    .catch(err => console.log('Email error details:', JSON.stringify(err)));
 }
 
 // INIT
