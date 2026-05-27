@@ -1245,10 +1245,13 @@ function addSlot(){
     const eh = h+i+1;
     const startStr = String(sh).padStart(2,'0')+':'+String(m).padStart(2,'0');
     const endStr   = String(eh).padStart(2,'0')+':'+String(m).padStart(2,'0');
-    slots.push({id:Date.now()+(i*100),date,type,start:startStr,end:endStr,booked:false});
+    const slot={id:Date.now()+(i*100),date,type,start:startStr,end:endStr,booked:false,coach:coach};
+    slots.push(slot);
+    sbSaveSlot(slot);
   }
   slots.sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
-  save();renderAdmin();renderCal();  showToast(count+' '+(lang==='nl'?'slots toegevoegd!':'slots added!'));
+  save();renderAdmin();renderCal();
+  showToast(count+' '+(lang==='nl'?'slots toegevoegd!':'slots added!'));
 }
 
 function delSlot(id){
