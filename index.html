@@ -1930,7 +1930,8 @@ const EMAILJS_CONFIRM = 'template_cgww3r3';
 const EMAILJS_CANCEL = 'template_0q5wfrj';
 
 function sendConfirmEmail(res) {
-  if (!res.email) return;
+  console.log('Sending email to:', res.email, 'name:', res.name);
+  if (!res.email) { console.log('No email - skipping'); return; }
   emailjs.send(EMAILJS_SERVICE, EMAILJS_CONFIRM, {
     to_name: res.name || 'klant',
     to_email: res.email,
