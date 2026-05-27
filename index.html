@@ -1536,15 +1536,15 @@ function onLogin() {
   document.getElementById('prof-since').textContent = currentUser.since || '—';
 
   // Show past reservations
-  const myRes = reservations.filter(r => r.email && r.email.toLowerCase() === currentUser.email);
+  const myRes = reservations.filter(r => r.email && r.email.toLowerCase() === currentUser.email.toLowerCase());
   const list = document.getElementById('past-res-list');
   if (!myRes.length) {
     list.innerHTML = '<p style="color:#aaa;font-size:13px;">Nog geen reserveringen</p>';
   } else {
     list.innerHTML = myRes.map(r => {
       const [y,m,d] = r.date.split('-');
-      const statusColor = r.status==='confirmed'?'#E8570A':r.status==='rejected'?'var(--red)':'#cc9900';
-      const statusLabel = r.status==='confirmed'?'Bevestigd':r.status==='rejected'?'Afgewezen':'In afwachting';
+      const statusColor = r.status==='confirmed'?'#E8570A':r.status==='cancelled'?'#999':r.status==='rejected'?'var(--red)':'#cc9900';
+      const statusLabel = r.status==='confirmed'?'Bevestigd':r.status==='cancelled'?'Geannuleerd':r.status==='rejected'?'Afgewezen':'In afwachting';
       return `<div class="past-res-row">
         <div class="past-res-date">📅 ${d}/${m}/${y} · ${r.start}–${r.end}</div>
         <div class="past-res-detail">${r.type} · ${r.coach||''} · ${r.service||''}</div>
@@ -1903,6 +1903,7 @@ function handleNavLogin() {
 
 function goToProfile() {
   document.getElementById('user-dropdown').classList.remove('show');
+  sbLoadData().then(() => onLogin());
   navTo('login', null);
   // Show user view
   setTimeout(() => {
@@ -1931,8 +1932,7 @@ const EMAILJS_CANCEL = 'template_0q5wfrj';
 
 function sendConfirmEmail(res) {
   console.log('Sending email to:', res.email, 'name:', res.name);
-  if (!res.email) { console.log('No email - skipping'); return; }
-  emailjs.send(EMAILJS_SERVICE, EMAILJS_CONFIRM, {
+  const params = {
     to_name: res.name || 'klant',
     to_email: res.email,
     date: res.date ? res.date.split('-').reverse().join('/') : '',
@@ -1940,8 +1940,17 @@ function sendConfirmEmail(res) {
     coach: res.coach ? res.coach.charAt(0).toUpperCase() + res.coach.slice(1) : '',
     service: res.service || '',
     price: res.price || ''
-  }).then(() => console.log('Bevestiging email verstuurd'))
-    .catch(err => console.log('Email error details:', JSON.stringify(err)));
+  };
+  // Send to customer
+  if (res.email) {
+    emailjs.send(EMAILJS_SERVICE, EMAILJS_CONFIRM, params)
+      .then(() => console.log('Bevestiging email verstuurd naar klant'))
+      .catch(err => console.log('Email error details:', JSON.stringify(err)));
+  }
+  // Send to admin
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_CONFIRM, {...params, to_name: 'Hasan', to_email: 'halftime9000@gmail.com'})
+    .then(() => console.log('Bevestiging email verstuurd naar admin'))
+    .catch(err => console.log('Admin email error:', JSON.stringify(err)));
 }
 
 function sendCancelEmail(res) {
