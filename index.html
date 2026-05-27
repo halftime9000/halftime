@@ -824,6 +824,11 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
           <div class="add-form">
             <div class="form-row">
               <input type="date" id="a-date">
+              <select id="a-coach-slot">
+                <option value="hasan">Hasan</option>
+                <option value="tim">Tim</option>
+                <option value="both">Beide</option>
+              </select>
               <select id="a-type">
                 <option id="as1" value="">Individuele training</option>
                 <option id="as2" value="">Groepstraining</option>
@@ -1230,6 +1235,7 @@ function addSlot(){
   const date=document.getElementById('a-date').value;
   const type=document.getElementById('a-type').value;
   const start=document.getElementById('a-start').value;
+  const coach=document.getElementById('a-coach-slot').value;
   const count=parseInt(document.getElementById('a-count').value);
   if(!date||!start) return showToast(t('errfields'),true);
   
@@ -1309,7 +1315,7 @@ function renderAdmin(){
   const sl=document.getElementById('admin-slots');
   sl.innerHTML=!slots.length?`<div class="empty">${t('noslots')}</div>`:slots.map(s=>{
     const [y,m,d]=s.date.split('-');
-    return `<div class="list-row"><div><div class="list-date">${d}/${m}/${y} · ${s.type}</div><div class="list-time">${s.start}–${s.end} · <span style="color:${s.booked?'var(--red)':'var(--orange)'}">${s.booked?t('occ'):t('free')}</span></div></div><button class="btn-x" onclick="delSlot(${s.id})">✕</button></div>`;
+    return `<div class="list-row"><div><div class="list-date">${d}/${m}/${y} · ${s.type} · <strong>${s.coach||'beide'}</strong></div><div class="list-time">${s.start}–${s.end} · <span style="color:${s.booked?'var(--red)':'var(--orange)'}">${s.booked?t('occ'):t('free')}</span></div></div><button class="btn-x" onclick="delSlot(${s.id})">✕</button></div>`;
   }).join('');
   const rl=document.getElementById('admin-res');
   rl.innerHTML=!reservations.length?`<div class="empty">${t('nores')}</div>`:reservations.map(r=>{
@@ -1815,7 +1821,7 @@ async function sbSaveSlot(slot) {
   try {
     await supa.from('slots').upsert({
       id: slot.id, date: slot.date, type: slot.type,
-      start: slot.start, end: slot.end, booked: slot.booked
+      start: slot.start, end: slot.end, booked: slot.booked, coach: slot.coach
     });
   } catch(e) { console.log('Slot save error:', e); }
 }
