@@ -1136,6 +1136,24 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   </div>
 </div>
 
+
+<!-- ADMIN PASSWORD MODAL -->
+<div class="modal-ov" id="admin-pass-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:20px;padding:40px 32px;max-width:400px;width:90%;text-align:center;">
+    <img src="data:image/png;base64,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" style="height:60px;margin-bottom:20px;">
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#000033;margin-bottom:6px;">ADMIN PANEL</h2>
+    <p style="color:#888;font-size:14px;margin-bottom:24px;">Voer het wachtwoord in</p>
+    <div style="position:relative;margin-bottom:8px;">
+      <input id="admin-pass-input" type="password" placeholder="Wachtwoord" 
+        onkeydown="if(event.key==='Enter')checkAdminPass()"
+        style="width:100%;padding:14px 16px;border:1px solid #e0e0e8;border-radius:12px;font-size:15px;outline:none;font-family:'DM Sans',sans-serif;box-sizing:border-box;">
+    </div>
+    <p id="admin-pass-error" style="display:none;color:#ff4444;font-size:13px;margin-bottom:12px;">Onjuist wachtwoord</p>
+    <button onclick="checkAdminPass()" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;cursor:pointer;margin-bottom:10px;">INLOGGEN</button>
+    <button onclick="closeAdminPass()" style="width:100%;padding:12px;background:transparent;border:1px solid #ddd;border-radius:12px;color:#888;font-size:14px;cursor:pointer;">Annuleren</button>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="modal-ov" id="modal-ov">
   <div class="modal">
@@ -2084,11 +2102,11 @@ function confirmRegSec(secId, labelClass, groupSelector, btn) {
 function openAdminPass() {
   document.getElementById('admin-pass-input').value = '';
   document.getElementById('admin-pass-err').classList.remove('show');
-  document.getElementById('admin-pass-ov').classList.add('show');
+  document.getElementById('admin-pass-ov').style.display='flex';
   setTimeout(() => document.getElementById('admin-pass-input').focus(), 100);
 }
 function closeAdminPass() {
-  document.getElementById('admin-pass-ov').classList.remove('show');
+  document.getElementById('admin-pass-ov').style.display='none';
 }
 async function checkAdminPass() {
   const val = document.getElementById('admin-pass-input').value;
@@ -2835,17 +2853,30 @@ function saveEditSpeler() {
 const ADMIN_HASH = '7b592f73b25c5f17398fc45741f7476a071ff1ee9433875cfa2b53ab657c58c9';
 
 function openAdminPass() {
-  const pw = prompt('Admin wachtwoord:');
-  if (!pw) return;
+  document.getElementById('admin-pass-ov').style.display='flex';
+  setTimeout(() => document.getElementById('admin-pass-input').focus(), 100);
+}
+
+function closeAdminPass() {
+  document.getElementById('admin-pass-ov').style.display='none';
+  document.getElementById('admin-pass-input').value = '';
+  document.getElementById('admin-pass-error').style.display = 'none';
+}
+
+function checkAdminPass() {
+  const pw = document.getElementById('admin-pass-input').value;
   crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw)).then(buf => {
     const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     if (hash === ADMIN_HASH) {
+      closeAdminPass();
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
       document.getElementById('page-admin').classList.add('active');
       renderAdmin();
     } else {
-      alert('Onjuist wachtwoord');
+      document.getElementById('admin-pass-error').style.display = 'block';
+      document.getElementById('admin-pass-input').value = '';
+      document.getElementById('admin-pass-input').focus();
     }
   });
 }
