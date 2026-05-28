@@ -1391,7 +1391,7 @@ function submitBooking() {
   sbSaveSlot(s);
   sendConfirmEmail(res);
   // Auto-add to spelers list
-  const existingSpeler = spelers.find(sp => sp.email && sp.email.toLowerCase() === res.email.toLowerCase());
+  const existingSpeler = spelers.find(sp => sp.naam && res.name && sp.naam.toLowerCase() === res.name.toLowerCase());
   if (!existingSpeler && res.name) {
     const newSpeler = {
       id: Date.now() + 1,
@@ -2070,7 +2070,7 @@ async function sbLoadData() {
       supa.from('slots').select('*'),
       supa.from('reservations').select('*')
     ]);
-    if (slotsRes.data) slots = slotsRes.data.map(s => ({...s, id: Number(s.id)}));
+    if (slotsRes.data) slots = slotsRes.data.map(s => ({...s, id: Number(s.id), booked: s.booked === true || s.booked === 'true'}));
     if (resRes.data) reservations = resRes.data.map(r => ({...r, id: Number(r.id), slotId: Number(r.slot_id), betaalMethod: r.betaal_method || '', betaalBedrag: r.betaal_bedrag || '', betaalLocked: r.betaal_locked || false}));
     renderCal();
     renderAdmin();
@@ -2269,7 +2269,7 @@ function renderSpelers() {
   reservations.filter(r => r.name).forEach(r => {
     const resId = 'res_' + r.id;
     if (hiddenSpelers.includes(resId)) return;
-    if (!allSpelers.find(s => s.email && r.email && s.email.toLowerCase() === r.email.toLowerCase())) {
+    if (!allSpelers.find(s => s.naam && r.name && s.naam.toLowerCase() === r.name.toLowerCase())) {
       allSpelers.push({
         id: 'res_' + r.id,
         naam: r.name,
