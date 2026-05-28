@@ -127,7 +127,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .btn-book:hover { opacity:.9; transform:translateY(-1px); }
 
 /* ADMIN */
-.admin-wrap { padding:40px 32px; max-width:1100px; margin:0 auto; }
+.admin-wrap { padding:40px 32px; max-width:1200px; margin:0 auto; width:100%; }
 .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px; }
 .stat { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 22px; }
 .stat-lbl { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
@@ -574,6 +574,41 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   .nav-user-dropdown-item:hover { background:#f5f5f0; }
   .nav-user-dropdown-item.red { color:var(--red); }
 
+
+  /* ── SPELERS TAB ── */
+  .speler-card { background:#fff; border:1px solid #e0e0e8; border-radius:12px; padding:16px; margin-bottom:10px; }
+  .speler-name { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#000033; }
+  .speler-age { font-size:12px; color:var(--orange); font-weight:600; margin-bottom:6px; }
+  .speler-det { font-size:12px; color:#888; margin:2px 0; }
+  .jaar-header { font-family:'Bebas Neue',sans-serif; font-size:22px; color:#000033; margin:20px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--orange); }
+  .add-speler-form { background:#fff; border:1px solid #e0e0e8; border-radius:12px; padding:20px; margin-bottom:20px; }
+  .add-speler-form h3 { font-family:'Bebas Neue',sans-serif; font-size:18px; color:#000033; margin-bottom:14px; }
+  .speler-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .speler-input { width:100%; padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; }
+  .speler-input:focus { border-color:var(--orange); }
+
+  /* ── BETALING TAB ── */
+  .betaling-row { background:#fff; border:1px solid #e0e0e8; border-radius:12px; padding:16px; margin-bottom:10px; }
+  .betaling-name { font-size:14px; font-weight:600; color:#000033; margin-bottom:4px; }
+  .betaling-det { font-size:12px; color:#888; margin-bottom:10px; }
+  .betaling-opties { display:flex; flex-direction:column; gap:8px; }
+  .betaling-optie { display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid #ddd; border-radius:8px; cursor:pointer; transition:all .15s; }
+  .betaling-optie.selected { border-color:var(--orange); background:#fff8f5; }
+  .betaling-optie input[type="radio"] { accent-color:var(--orange); }
+  .betaling-optie label { font-size:13px; color:#000033; cursor:pointer; flex:1; }
+  .betaling-bedrag { width:80px; padding:5px 8px; border:1px solid #ddd; border-radius:6px; font-size:12px; outline:none; }
+  .betaling-bedrag:focus { border-color:var(--orange); }
+  .onbetaald-badge { display:inline-block; padding:3px 10px; background:rgba(255,68,68,.1); color:var(--red); border-radius:20px; font-size:11px; font-weight:600; }
+  .betaald-badge { display:inline-block; padding:3px 10px; background:rgba(37,162,68,.1); color:#25a244; border-radius:20px; font-size:11px; font-weight:600; }
+
+
+  /* ── SPELER MODAL ── */
+  .speler-modal-ov { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.7); z-index:99999; display:none; align-items:center; justify-content:center; padding:20px; }
+  .speler-modal-ov.show { display:flex; }
+  .speler-modal { background:#f5f5f0; width:100%; max-width:700px; max-height:90vh; overflow-y:auto; border-radius:16px; padding:32px; position:relative; margin:auto; }
+  .speler-modal-close { position:absolute; top:16px; right:16px; background:none; border:none; font-size:22px; color:#aaa; cursor:pointer; }
+  .speler-modal h2 { font-family:'Bebas Neue',sans-serif; font-size:28px; color:#000033; margin-bottom:20px; }
+
 </style>
 </head>
 <body>
@@ -598,7 +633,8 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
       <button class="nav-user-dropdown-item" onclick="goToProfile()">👤 Mijn profiel</button>
       <button class="nav-user-dropdown-item red" onclick="doLogout()">↩ Uitloggen</button>
     </div>
-    </div>
+
+  </div>
 </div>
 </nav>
 
@@ -814,6 +850,8 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
       <button class="admin-tab active" onclick="switchAdminTab('tab-slots',this)">📅 Slots</button>
       <button class="admin-tab" onclick="switchAdminTab('tab-reservations',this)">📋 Reserveringen</button>
       <button class="admin-tab" onclick="switchAdminTab('tab-history',this)">🕓 Geschiedenis</button>
+      <button class="admin-tab" onclick="switchAdminTab('tab-spelers',this)">👥 Spelers</button>
+      <button class="admin-tab" onclick="switchAdminTab('tab-betaling',this)">💶 Betaling</button>
     </div>
 
     <!-- TAB 1: SLOTS -->
@@ -883,6 +921,116 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
       <div id="history-list"></div>
     </div>
 
+    <!-- TAB 4: SPELERS -->
+    <div class="admin-section" id="tab-spelers">
+      <button class="btn-add" onclick="openSpelerModal()" style="width:auto;padding:10px 20px;margin-bottom:16px;">+ SPELER TOEVOEGEN</button>
+      <div id="spelers-list"></div>
+    </div>
+
+    <!-- TAB 5: BETALING -->
+    <div class="admin-section" id="tab-betaling">
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;margin-bottom:16px;">
+        <h3 style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#000033;margin-bottom:12px;">+ BETALING TOEVOEGEN</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <input class="speler-input" id="bet-naam" placeholder="Naam speler">
+          <input class="speler-input" id="bet-datum" type="date">
+          <input class="speler-input" id="bet-coach" placeholder="Coach (Hasan/Tim)">
+          <input class="speler-input" id="bet-service" placeholder="Training">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;cursor:pointer;">
+            <input type="radio" name="new-bet" value="hasan_cash" style="accent-color:var(--orange);">
+            <span style="flex:1;font-size:13px;">💵 Betaald Hasan (cash)</span>
+            <input class="betaling-bedrag" id="new-bet-bedrag-hasan_cash" placeholder="€">
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;cursor:pointer;">
+            <input type="radio" name="new-bet" value="tim_cash" style="accent-color:var(--orange);">
+            <span style="flex:1;font-size:13px;">💵 Betaald Tim (cash)</span>
+            <input class="betaling-bedrag" id="new-bet-bedrag-tim_cash" placeholder="€">
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;cursor:pointer;">
+            <input type="radio" name="new-bet" value="qr" style="accent-color:var(--orange);">
+            <span style="flex:1;font-size:13px;">📱 Betaald via QR code</span>
+            <input class="betaling-bedrag" id="new-bet-bedrag-qr" placeholder="€">
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;cursor:pointer;">
+            <input type="radio" name="new-bet" value="overschrijving" style="accent-color:var(--orange);">
+            <span style="flex:1;font-size:13px;">🏦 Betaald via overschrijving</span>
+            <input class="betaling-bedrag" id="new-bet-bedrag-overschrijving" placeholder="€">
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #ddd;border-radius:8px;cursor:pointer;">
+            <input type="radio" name="new-bet" value="onbetaald" style="accent-color:var(--orange);">
+            <span style="flex:1;font-size:13px;">❌ Niet betaald</span>
+          </label>
+        </div>
+        <button class="btn-add" onclick="addManualBetaling()" style="width:auto;padding:10px 20px;">+ TOEVOEGEN</button>
+      </div>
+      <div id="betaling-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SPELER MODAL -->
+<div class="speler-modal-ov" id="speler-modal-ov">
+  <div class="speler-modal">
+    <button class="speler-modal-close" onclick="closeSpelerModal()">✕</button>
+    <h2>SPELER TOEVOEGEN</h2>
+    <div class="add-speler-form" style="margin-bottom:0;">
+      <div class="speler-form-grid">
+        <input class="speler-input" id="sp-naam" placeholder="Naam speler">
+        <input class="speler-input" id="sp-ouder" placeholder="Naam ouder">
+        <select class="speler-input" id="sp-geboortejaar"><option value="">Selecteer geboortejaar</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+              <option value="2019">2019</option>
+              <option value="2018">2018</option>
+              <option value="2017">2017</option>
+              <option value="2016">2016</option>
+              <option value="2015">2015</option>
+              <option value="2014">2014</option>
+              <option value="2013">2013</option>
+              <option value="2012">2012</option>
+              <option value="2011">2011</option>
+              <option value="2010">2010</option>
+              <option value="2009">2009</option>
+              <option value="2008">2008</option>
+              <option value="2007">2007</option>
+              <option value="2006">2006</option>
+              <option value="2005">2005</option>
+              <option value="2004">2004</option>
+              <option value="2003">2003</option>
+              <option value="2002">2002</option>
+</select>
+        <input class="speler-input" id="sp-telefoon" placeholder="Telefoonnummer">
+        <input class="speler-input" id="sp-email" placeholder="E-mailadres">
+        <input class="speler-input" id="sp-club" placeholder="Club (optioneel)">
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">Werkpunten</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="sp-werk-group">
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Basistechniek"><div class="re-box"></div>Basistechniek</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Tweevoetigheid"><div class="re-box"></div>Tweevoetigheid</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Handelingsnelheid"><div class="re-box"></div>Handelingsnelheid</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Scanning"><div class="re-box"></div>Scanning</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Decision making"><div class="re-box"></div>Decision making</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Verdedigen/duels"><div class="re-box"></div>Verdedigen/duels</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Snelheid"><div class="re-box"></div>Snelheid</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Explosiviteit"><div class="re-box"></div>Explosiviteit</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Loop coördinatie"><div class="re-box"></div>Loop coördinatie</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Wendbaarheid"><div class="re-box"></div>Wendbaarheid</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">Extra werkpunt <span style="color:#aaa;font-weight:400;text-transform:none;letter-spacing:0;">(druk Enter om toe te voegen)</span></label>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <input class="speler-input" id="sp-werk-extra" placeholder="Typ extra werkpunt..." style="flex:1;" onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();addExtraWerkpunt();}">
+          <button type="button" onclick="addExtraWerkpunt()" style="padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap;flex-shrink:0;">Voeg toe</button>
+        </div>
+        <div id="sp-werk-extra-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+      </div>
+      <button class="btn-add" onclick="addSpeler()" style="margin-top:14px;">+ TOEVOEGEN</button>
+    </div>
   </div>
 </div>
 
@@ -1203,6 +1351,22 @@ function submitBooking() {
   sbSaveReservation(res);
   sbSaveSlot(s);
   sendConfirmEmail(res);
+  // Auto-add to spelers list
+  const existingSpeler = spelers.find(sp => sp.email && sp.email.toLowerCase() === res.email.toLowerCase());
+  if (!existingSpeler && res.name) {
+    const newSpeler = {
+      id: Date.now() + 1,
+      naam: res.name,
+      ouder: res.parent || '',
+      jaar: res.age ? geboortejaarFromAge(res.age) : 0,
+      telefoon: res.phone || '',
+      email: res.email || '',
+      werk: res.werk || [],
+      fromRes: true
+    };
+    spelers.push(newSpeler);
+    saveSpelers();
+  }
   // Show thank you page
   const [ty,tm,td] = selDate.split('-');
   const thCard = document.getElementById('th-card');
@@ -1321,10 +1485,31 @@ function renderAdmin(){
   document.getElementById('badge-slots').textContent=slots.length+' slots';
   document.getElementById('badge-res').textContent=reservations.filter(r=>r.status==='pending').length+' '+t('reqs');
   const sl=document.getElementById('admin-slots');
-  sl.innerHTML=!slots.length?`<div class="empty">${t('noslots')}</div>`:slots.map(s=>{
-    const [y,m,d]=s.date.split('-');
-    return `<div class="list-row"><div><div class="list-date">${d}/${m}/${y} · ${s.type} · <strong>${s.coach||'beide'}</strong></div><div class="list-time">${s.start}–${s.end} · <span style="color:${s.booked?'var(--red)':'var(--orange)'}">${s.booked?t('occ'):t('free')}</span></div></div><button class="btn-x" onclick="delSlot(${s.id})">✕</button></div>`;
-  }).join('');
+  if(sl){
+    if(!slots.length){ sl.innerHTML=`<div class="empty">${t('noslots')}</div>`; }
+    else {
+      const grouped={};
+      slots.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(s=>{
+        if(!grouped[s.date]) grouped[s.date]=[];
+        grouped[s.date].push(s);
+      });
+      const days=['zo','ma','di','wo','do','vr','za'];
+      sl.innerHTML=Object.entries(grouped).map(([date,daySlots])=>{
+        const [y,m,d]=date.split('-');
+        const dayName=days[new Date(date).getDay()];
+        return `<div style="margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:700;color:#000033;text-transform:uppercase;letter-spacing:.5px;padding:6px 0 4px;border-bottom:1px solid #eee;margin-bottom:8px;">${dayName} ${d}/${m}/${y}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            ${daySlots.map(s=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:${s.booked?'rgba(255,68,68,.08)':'rgba(232,87,10,.08)'};border:1px solid ${s.booked?'rgba(255,68,68,.25)':'rgba(232,87,10,.25)'};border-radius:20px;font-size:12px;">
+              <span style="color:${s.booked?'var(--red)':'var(--orange)'};">${s.start}</span>
+              <span style="color:#888;font-size:11px;">${s.coach||'beide'}</span>
+              <button onclick="delSlot(${s.id})" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:13px;padding:0;line-height:1;">✕</button>
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
   const rl=document.getElementById('admin-res');
   rl.innerHTML=!reservations.length?`<div class="empty">${t('nores')}</div>`:reservations.map(r=>{
     const [y,m,d]=r.date.split('-');
@@ -1337,6 +1522,10 @@ function renderAdmin(){
     const wa=r.phone?`<button class="btn-wa" onclick="sendWa(${r.id})">📱 WA</button>`:'';
     return `<div class="res-row"><div style="flex:1"><div class="res-name">${r.name} <span style="color:var(--muted);font-size:11px">${r.age}</span></div><div class="res-det">📅 ${d}/${m}/${y} · ${r.start}–${r.end} · ${r.type}${r.coach?' · '+r.coach:''}</div><div class="res-det">${r.service?'🏷️ '+r.service+(r.price?' · '+r.price:''):''}</div><div class="res-det">${r.phone?'📱 '+r.phone:''} ${r.email?'✉️ '+r.email:''}</div><div class="res-det" style="margin-top:3px">${r.positions&&r.positions.length?'🔢 '+r.positions.join(', '):''}</div><div class="res-det">${r.sterke&&r.sterke.length?'💪 '+r.sterke.join(', '):''}</div><div class="res-det">${r.werk&&r.werk.length?'🎯 '+r.werk.join(', '):''}</div></div><div class="res-acts">${badge}${acts}${wa}</div></div>`;
   }).join('');
+
+  // Render spelers and betaling
+  renderSpelers();
+  renderBetaling();
 }
 
 let toastT;
@@ -1625,7 +1814,10 @@ document.addEventListener('DOMContentLoaded', function() {
     logoClickTimer = setTimeout(() => {
       if (logoClickCount >= 3) {
         logoClickCount = 0;
-        openAdminPass();
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('page-admin').classList.add('active');
+        renderAdmin();
       } else {
         logoClickCount = 0;
         navTo('landing', null);
@@ -1964,6 +2156,351 @@ function sendCancelEmail(res) {
     service: res.service || ''
   }).then(() => console.log('Annulering email verstuurd'))
     .catch(err => console.log('Email error details:', JSON.stringify(err)));
+}
+
+
+// ── SPELERS ──
+let spelers = JSON.parse(localStorage.getItem('ht_spelers') || '[]');
+
+function saveSpelers() { localStorage.setItem('ht_spelers', JSON.stringify(spelers)); }
+
+function addSpeler() {
+  const naam = document.getElementById('sp-naam').value.trim();
+  const ouder = document.getElementById('sp-ouder').value.trim();
+  const jaar = document.getElementById('sp-geboortejaar').value.trim();
+  const telefoon = document.getElementById('sp-telefoon').value.trim();
+  const email = document.getElementById('sp-email').value.trim();
+  const club = document.getElementById('sp-club').value.trim();
+  const werk = [...Array.from(document.querySelectorAll('#sp-werk-group .re-chip.re-sel')).map(c => c.dataset.val), ...extraWerkpunten];
+  if (!naam || !jaar) { showToast('Naam en geboortejaar zijn verplicht'); return; }
+  const speler = { id: Date.now(), naam, ouder, jaar: parseInt(jaar), telefoon, email, club, werk };
+  spelers.push(speler);
+  saveSpelers();
+  // Clear form
+  ['sp-naam','sp-ouder','sp-geboortejaar','sp-telefoon','sp-email','sp-club'].forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('#sp-werk-group .re-chip.re-sel').forEach(c => c.classList.remove('re-sel'));
+  extraWerkpunten = [];
+  const ewl = document.getElementById('sp-werk-extra-list'); if(ewl) ewl.innerHTML = '';
+  closeSpelerModal();
+  renderAdmin();
+  showToast('Speler toegevoegd!');
+}
+
+function deleteSpeler(id) {
+  const before = spelers.length;
+  spelers = spelers.filter(s => String(s.id) !== String(id));
+  saveSpelers();
+  renderAdmin();
+  showToast('Speler verwijderd');
+}
+
+function renderSpelers() {
+  const allSpelers = [...spelers];
+  reservations.filter(r => r.name).forEach(r => {
+    if (!allSpelers.find(s => s.email && r.email && s.email.toLowerCase() === r.email.toLowerCase())) {
+      allSpelers.push({
+        id: 'res_' + r.id,
+        naam: r.name,
+        ouder: r.parent || '',
+        jaar: r.age ? geboortejaarFromAge(r.age) : 0,
+        telefoon: r.phone || '',
+        email: r.email || '',
+        werk: r.werk || [],
+        fromRes: true
+      });
+    }
+  });
+
+  const sl = document.getElementById('spelers-list');
+  if (!sl) return;
+  if (!allSpelers.length) {
+    sl.innerHTML = '<div style="text-align:center;padding:32px;color:#aaa;">Geen spelers</div>';
+    return;
+  }
+
+  // Sort by year desc
+  allSpelers.sort((a, b) => {
+    if (!a.jaar || a.jaar === 0) return 1;
+    if (!b.jaar || b.jaar === 0) return -1;
+    return b.jaar - a.jaar;
+  });
+
+  let rows = '';
+  let lastJaar = null;
+  allSpelers.forEach((s, i) => {
+    const jaar = s.jaar && s.jaar > 0 ? s.jaar : 'Onbekend';
+    if (jaar !== lastJaar) {
+      rows += `<tr>
+        <td colspan="7" style="padding:12px 8px 4px;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#000033;border-bottom:2px solid var(--orange);background:#f5f5f0;">
+          ${jaar}
+        </td>
+      </tr>`;
+      lastJaar = jaar;
+    }
+    rows += `<tr style="border-bottom:1px solid #f0f0f0;background:${i%2===0?'#fff':'#fafafa'};">
+      <td style="padding:7px 8px;width:32px;">
+        <input type="checkbox" class="speler-checkbox" data-id="${s.id}" data-fromres="${s.fromRes?'1':'0'}" style="width:15px;height:15px;accent-color:var(--orange);cursor:pointer;">
+      </td>
+      <td style="padding:7px 8px;font-weight:600;color:#000033;white-space:nowrap;">${s.naam}</td>
+      <td style="padding:7px 8px;color:#555;">${s.ouder||'—'}</td>
+      <td style="padding:7px 8px;color:#555;white-space:nowrap;">${s.telefoon||'—'}</td>
+      <td style="padding:7px 8px;color:#555;">${s.email||'—'}</td>
+      <td style="padding:7px 8px;color:var(--orange);font-size:11px;">${s.werk&&s.werk.length?s.werk.join(', '):'—'}</td>
+      <td style="padding:7px 8px;width:30px;">
+        ${!s.fromRes?`<button onclick="deleteSpeler('${s.id}')" style="background:none;border:none;color:#ddd;cursor:pointer;font-size:16px;padding:0;">✕</button>`:''}
+      </td>
+    </tr>`;
+  });
+
+  sl.innerHTML = `
+    <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;">
+      <button onclick="deleteSelectedSpelers()" style="padding:7px 14px;background:#ff4444;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">✕ Geselecteerde verwijderen</button>
+      <button onclick="selectAllSpelers()" style="padding:7px 14px;background:#fff;border:1px solid #ddd;color:#555;border-radius:8px;cursor:pointer;font-size:12px;">Alles selecteren</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="color:#aaa;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #eee;background:#fafafa;">
+            <th style="padding:6px 8px;width:32px;"></th>
+            <th style="padding:6px 8px;">Naam</th>
+            <th style="padding:6px 8px;">Ouder</th>
+            <th style="padding:6px 8px;">Telefoon</th>
+            <th style="padding:6px 8px;">Email</th>
+            <th style="padding:6px 8px;">Werkpunten</th>
+            <th style="padding:6px 8px;width:30px;"></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function deleteSelectedSpelers() {
+  const checked = document.querySelectorAll('.speler-checkbox:checked');
+  if (!checked.length) { showToast('Geen spelers geselecteerd'); return; }
+  checked.forEach(cb => {
+    spelers = spelers.filter(s => String(s.id) !== String(cb.dataset.id));
+  });
+  saveSpelers();
+  renderAdmin();
+  showToast(checked.length + ' speler(s) verwijderd');
+}
+
+function selectAllSpelers() {
+  const checkboxes = document.querySelectorAll('.speler-checkbox');
+  const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+  checkboxes.forEach(cb => cb.checked = !allChecked);
+}
+
+function geboortejaarFromAge(ageGroup) {
+  const year = new Date().getFullYear();
+  const match = ageGroup.match(/U(\d+)/);
+  if (match) return year - parseInt(match[1]);
+  return 0;
+}
+
+// ── BETALING ──
+function renderBetaling() {
+  const all = reservations.filter(r => r.status === 'confirmed' || r.status === 'pending');
+  const bl = document.getElementById('betaling-list');
+  if (!bl) return;
+  if (!all.length) {
+    bl.innerHTML = '<div style="text-align:center;padding:24px;color:#aaa;">Geen reserveringen</div>';
+    return;
+  }
+
+  const methodLabel = {
+    'hasan_cash': '💵 Betaald Hasan (cash)',
+    'tim_cash': '💵 Betaald Tim (cash)',
+    'qr': '📱 Betaald via QR code',
+    'overschrijving': '🏦 Betaald via overschrijving',
+    'onbetaald': '❌ Niet betaald',
+    '': '— Nog niet ingesteld'
+  };
+
+  bl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+    <thead><tr style="color:#888;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #eee;background:#fafafa;">
+      <th style="padding:8px;">Naam</th>
+      <th style="padding:8px;">Datum</th>
+      <th style="padding:8px;">Coach</th>
+      <th style="padding:8px;">Prijs</th>
+      <th style="padding:8px;">Betaling</th>
+      <th style="padding:8px;">Bedrag</th>
+      <th style="padding:8px;width:40px;"></th>
+    </tr></thead>
+    <tbody>
+      ${all.map((r, i) => {
+        const [y,m,d] = r.date ? r.date.split('-') : ['','',''];
+        const m2 = r.betaalMethod || '';
+        const bedrag = r.betaalBedrag || '';
+        const isPaid = m2 && m2 !== 'onbetaald';
+        const isLocked = r.betaalLocked && m2;
+        const dot = m2 === '' ? '⚪' : isPaid ? '<span style="color:#25a244;">●</span>' : '<span style="color:#ff4444;">●</span>';
+        
+        if (isLocked) {
+          // Show locked state - just info + edit button
+          return `<tr style="border-bottom:1px solid #f0f0f0;background:${i%2===0?'#fff':'#fafafa'};">
+            <td style="padding:8px;font-weight:600;color:#000033;">${r.name||'—'}</td>
+            <td style="padding:8px;color:#555;">${d?d+'/'+m+'/'+y:'—'}</td>
+            <td style="padding:8px;color:#555;">${r.coach||'—'}</td>
+            <td style="padding:8px;color:var(--orange);font-weight:600;">${r.price||'—'}</td>
+            <td style="padding:8px;">${dot} ${methodLabel[m2]||m2}</td>
+            <td style="padding:8px;font-weight:600;color:#000033;">${bedrag ? '€'+bedrag : '—'}</td>
+            <td style="padding:8px;">
+<div style="display:flex;gap:4px;">
+                <button onclick="unlockBetaling(${r.id})" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;color:#888;" title="Bewerken">✏️</button>
+                <button onclick="deleteBetaling(${r.id})" style="background:none;border:1px solid #ffcccc;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;color:#ff4444;" title="Verwijderen">✕</button>
+              </div>
+            </td>
+          </tr>`;
+        } else {
+          // Show editable state with dropdown
+          return `<tr style="border-bottom:1px solid #f0f0f0;background:${i%2===0?'#fff':'#fafafa'};">
+            <td style="padding:8px;font-weight:600;color:#000033;">${r.name||'—'}</td>
+            <td style="padding:8px;color:#555;">${d?d+'/'+m+'/'+y:'—'}</td>
+            <td style="padding:8px;color:#555;">${r.coach||'—'}</td>
+            <td style="padding:8px;color:var(--orange);font-weight:600;">${r.price||'—'}</td>
+            <td style="padding:8px;">
+              <select onchange="setBetaalMethod(${r.id},this.value)" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;font-size:12px;outline:none;background:#fff;">
+                <option value="" ${m2===''?'selected':''}>— Selecteer —</option>
+                <option value="hasan_cash" ${m2==='hasan_cash'?'selected':''}>💵 Hasan cash</option>
+                <option value="tim_cash" ${m2==='tim_cash'?'selected':''}>💵 Tim cash</option>
+                <option value="qr" ${m2==='qr'?'selected':''}>📱 QR code</option>
+                <option value="overschrijving" ${m2==='overschrijving'?'selected':''}>🏦 Overschrijving</option>
+                <option value="onbetaald" ${m2==='onbetaald'?'selected':''}>❌ Niet betaald</option>
+              </select>
+            </td>
+            <td style="padding:8px;">
+              <input type="text" value="${bedrag}" placeholder="€" 
+                oninput="setBetaalBedrag(${r.id},this.value)"
+                style="width:70px;padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px;outline:none;"
+                ${!m2||m2==='onbetaald'?'disabled':''}>
+            </td>
+            <td style="padding:8px;">
+<div style="display:flex;gap:4px;">
+                ${m2 ? `<button onclick="lockBetaling(${r.id})" style="background:var(--orange);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:#fff;white-space:nowrap;">✓ OK</button>` : ''}
+                <button onclick="deleteBetaling(${r.id})" style="background:none;border:1px solid #ffcccc;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;color:#ff4444;">✕</button>
+              </div>
+            </td>
+          </tr>`;
+        }
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+function setBetaalMethod(id, method) {
+  const r = reservations.find(r => r.id === id);
+  if (!r) return;
+  r.betaalMethod = method;
+  r.paid = (method !== 'onbetaald' && method !== '');
+  save();
+  sbSaveReservation(r);
+  renderAdmin();
+}
+
+function setBetaalBedrag(id, bedrag) {
+  const r = reservations.find(r => r.id === id);
+  if (!r) return;
+  r.betaalBedrag = bedrag;
+  save();
+}
+
+
+function openSpelerModal() {
+  document.getElementById('speler-modal-ov').classList.add('show');
+}
+function closeSpelerModal() {
+  document.getElementById('speler-modal-ov').classList.remove('show');
+}
+
+
+function addManualBetaling() {
+  const naam = document.getElementById('bet-naam').value.trim();
+  const datum = document.getElementById('bet-datum').value;
+  const coach = document.getElementById('bet-coach').value.trim();
+  const service = document.getElementById('bet-service').value.trim();
+  const method = document.querySelector('input[name="new-bet"]:checked');
+  if (!naam) { showToast('Naam is verplicht'); return; }
+  
+  const betaalMethod = method ? method.value : 'onbetaald';
+  const bedragEl = document.getElementById('new-bet-bedrag-' + betaalMethod);
+  const betaalBedrag = bedragEl ? bedragEl.value : '';
+  
+  const res = {
+    id: Date.now(),
+    name: naam,
+    date: datum,
+    coach: coach,
+    service: service,
+    status: 'confirmed',
+    betaalMethod: betaalMethod,
+    betaalBedrag: betaalBedrag,
+    paid: betaalMethod !== 'onbetaald'
+  };
+  reservations.unshift(res);
+  save();
+  sbSaveReservation(res);
+  
+  document.getElementById('bet-naam').value = '';
+  document.getElementById('bet-datum').value = '';
+  document.getElementById('bet-coach').value = '';
+  document.getElementById('bet-service').value = '';
+  
+  renderAdmin();
+  showToast('Betaling toegevoegd!');
+}
+
+
+let extraWerkpunten = [];
+
+function addExtraWerkpunt() {
+  const input = document.getElementById('sp-werk-extra');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  extraWerkpunten.push(val);
+  input.value = '';
+  renderExtraWerkpunten();
+}
+
+function renderExtraWerkpunten() {
+  const list = document.getElementById('sp-werk-extra-list');
+  if (!list) return;
+  list.innerHTML = extraWerkpunten.map((w, i) =>
+    `<div style="padding:5px 10px;background:#fff8f5;border:1px solid var(--orange);border-radius:20px;font-size:12px;color:#000033;display:flex;align-items:center;gap:6px;">
+      ${w} <button onclick="removeExtraWerkpunt(${i})" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:12px;padding:0;">✕</button>
+    </div>`
+  ).join('');
+}
+
+function removeExtraWerkpunt(i) {
+  extraWerkpunten.splice(i, 1);
+  renderExtraWerkpunten();
+}
+
+
+function deleteBetaling(id) {
+  reservations = reservations.filter(r => r.id !== id);
+  save();
+  // Also delete from Supabase
+  try { supa.from('reservations').delete().eq('id', id); } catch(e) {}
+  renderAdmin();
+  showToast('Betaling verwijderd');
+}
+
+function lockBetaling(id) {
+  const r = reservations.find(r => r.id === id);
+  if (!r || !r.betaalMethod) return;
+  r.betaalLocked = true;
+  save(); sbSaveReservation(r); renderAdmin();
+}
+
+function unlockBetaling(id) {
+  const r = reservations.find(r => r.id === id);
+  if (!r) return;
+  r.betaalLocked = false;
+  save(); sbSaveReservation(r); renderAdmin();
 }
 
 // INIT
