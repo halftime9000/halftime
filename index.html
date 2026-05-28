@@ -2071,7 +2071,7 @@ async function sbLoadData() {
       supa.from('reservations').select('*')
     ]);
     if (slotsRes.data) slots = slotsRes.data.map(s => ({...s, id: Number(s.id)}));
-    if (resRes.data) reservations = resRes.data.map(r => ({...r, id: Number(r.id), slotId: Number(r.slot_id)}));
+    if (resRes.data) reservations = resRes.data.map(r => ({...r, id: Number(r.id), slotId: Number(r.slot_id), betaalMethod: r.betaal_method || '', betaalBedrag: r.betaal_bedrag || '', betaalLocked: r.betaal_locked || false}));
     renderCal();
     renderAdmin();
   } catch(e) { console.log('Supabase load error:', e); }
@@ -2100,7 +2100,9 @@ async function sbSaveReservation(res) {
       start: res.start, end: res.end, type: res.type,
       positions: res.positions, sterke: res.sterke, werk: res.werk,
       note: res.note, status: res.status, paid: res.paid || false,
-      note_admin: res.note_admin || '', slot_id: res.slotId
+      note_admin: res.note_admin || '', slot_id: res.slotId,
+      betaal_method: res.betaalMethod || '', betaal_bedrag: res.betaalBedrag || '',
+      betaal_locked: res.betaalLocked || false
     });
   } catch(e) { console.log('Reservation save error:', e); }
 }
