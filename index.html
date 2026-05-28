@@ -609,6 +609,54 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   .speler-modal-close { position:absolute; top:16px; right:16px; background:none; border:none; font-size:22px; color:#aaa; cursor:pointer; }
   .speler-modal h2 { font-family:'Bebas Neue',sans-serif; font-size:28px; color:#000033; margin-bottom:20px; }
 
+
+@media(max-width:600px) {
+  /* GLOBAL */
+  body { overflow-x:hidden; }
+  * { box-sizing:border-box; }
+
+  /* ADMIN TABS - scrollable */
+  .admin-tabs { overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; padding-bottom:4px; }
+  .admin-tab { white-space:nowrap; font-size:11px; padding:6px 10px; flex-shrink:0; }
+
+  /* ADMIN SECTIONS */
+  .admin-section { overflow-x:auto; }
+
+  /* TABLES - scrollable on mobile */
+  #spelers-list, #betaling-list, #admin-slots, #reservations-list { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  #spelers-list table, #betaling-list table { min-width:600px; }
+
+  /* BETALING FORM */
+  #tab-betaling .speler-form-grid { grid-template-columns:1fr; }
+  #tab-betaling > div:first-child { padding:12px; }
+
+  /* SPELER MODAL */
+  .speler-modal { padding:20px 14px; }
+  .speler-form-grid { grid-template-columns:1fr; }
+
+  /* BOOKING CALENDAR */
+  .cal-day { font-size:11px; min-height:34px; }
+  
+  /* STATS ROW */
+  .stats-row { grid-template-columns:1fr; gap:8px; }
+
+  /* RESERVATION ROWS */
+  .res-row { flex-direction:column; gap:8px; }
+  .res-acts { flex-direction:row; flex-wrap:wrap; gap:6px; }
+
+  /* CONTACT PAGE */
+  .contact-coaches { flex-direction:column; gap:16px; }
+
+  /* NAV USER DROPDOWN */
+  .nav-user-dropdown { right:-10px; }
+
+  /* SPELER TOEVOEGEN BUTTON */
+  #tab-spelers > button { width:100%; }
+
+  /* BETALING TOEVOEGEN FORM */
+  .betaling-opties { gap:4px; }
+}
+
 </style>
 </head>
 <body>
@@ -849,7 +897,6 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
     <div class="admin-tabs">
       <button class="admin-tab active" onclick="switchAdminTab('tab-slots',this)">📅 Slots</button>
       <button class="admin-tab" onclick="switchAdminTab('tab-reservations',this)">📋 Reserveringen</button>
-      <button class="admin-tab" onclick="switchAdminTab('tab-history',this)">🕓 Geschiedenis</button>
       <button class="admin-tab" onclick="switchAdminTab('tab-spelers',this)">👥 Spelers</button>
       <button class="admin-tab" onclick="switchAdminTab('tab-betaling',this)">💶 Betaling</button>
     </div>
@@ -911,16 +958,6 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
       </div>
     </div>
 
-    <!-- TAB 3: GESCHIEDENIS -->
-    <div class="admin-section" id="tab-history">
-      <div class="filter-bar">
-        <button class="filter-btn active" onclick="setHistFilter('all',this)">Alle</button>
-        <button class="filter-btn" onclick="setHistFilter('paid',this)">💶 Betaald</button>
-        <button class="filter-btn" onclick="setHistFilter('unpaid',this)">❌ Onbetaald</button>
-      </div>
-      <div id="history-list"></div>
-    </div>
-
     <!-- TAB 4: SPELERS -->
     <div class="admin-section" id="tab-spelers">
       <button class="btn-add" onclick="openSpelerModal()" style="width:auto;padding:10px 20px;margin-bottom:16px;">+ SPELER TOEVOEGEN</button>
@@ -929,6 +966,8 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 
     <!-- TAB 5: BETALING -->
     <div class="admin-section" id="tab-betaling">
+      <div id="betaling-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;"></div>
+
       <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;margin-bottom:16px;">
         <h3 style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#000033;margin-bottom:12px;">+ BETALING TOEVOEGEN</h3>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
@@ -1424,6 +1463,7 @@ function addSlot(){
 }
 
 function delSlot(id){
+  if(!confirm("Wil je dit slot verwijderen?")) return;
   slots=slots.filter(s=>s.id!==id);
   save();sbDeleteSlot(id);renderAdmin();renderCal();showToast(t('toastdel'));
 }
@@ -1519,8 +1559,9 @@ function renderAdmin(){
         :r.status==='confirmed'
         ?`<button class="btn-no" onclick="cancelRes(${r.id})">${t('cancel')}</button>`
         :'';
+    const deleteBtn = `<button onclick="deleteRes(${r.id})" style="padding:5px 10px;background:none;border:1px solid #ffcccc;border-radius:8px;color:#ff4444;font-size:12px;cursor:pointer;" title="Verwijderen">🗑️</button>`;
     const wa=r.phone?`<button class="btn-wa" onclick="sendWa(${r.id})">📱 WA</button>`:'';
-    return `<div class="res-row"><div style="flex:1"><div class="res-name">${r.name} <span style="color:var(--muted);font-size:11px">${r.age}</span></div><div class="res-det">📅 ${d}/${m}/${y} · ${r.start}–${r.end} · ${r.type}${r.coach?' · '+r.coach:''}</div><div class="res-det">${r.service?'🏷️ '+r.service+(r.price?' · '+r.price:''):''}</div><div class="res-det">${r.phone?'📱 '+r.phone:''} ${r.email?'✉️ '+r.email:''}</div><div class="res-det" style="margin-top:3px">${r.positions&&r.positions.length?'🔢 '+r.positions.join(', '):''}</div><div class="res-det">${r.sterke&&r.sterke.length?'💪 '+r.sterke.join(', '):''}</div><div class="res-det">${r.werk&&r.werk.length?'🎯 '+r.werk.join(', '):''}</div></div><div class="res-acts">${badge}${acts}${wa}</div></div>`;
+    return `<div class="res-row"><div style="flex:1"><div class="res-name">${r.name} <span style="color:var(--muted);font-size:11px">${r.age}</span></div><div class="res-det">📅 ${d}/${m}/${y} · ${r.start}–${r.end} · ${r.type}${r.coach?' · '+r.coach:''}</div><div class="res-det">${r.service?'🏷️ '+r.service+(r.price?' · '+r.price:''):''}</div><div class="res-det">${r.phone?'📱 '+r.phone:''} ${r.email?'✉️ '+r.email:''}</div><div class="res-det" style="margin-top:3px">${r.positions&&r.positions.length?'🔢 '+r.positions.join(', '):''}</div><div class="res-det">${r.sterke&&r.sterke.length?'💪 '+r.sterke.join(', '):''}</div><div class="res-det">${r.werk&&r.werk.length?'🎯 '+r.werk.join(', '):''}</div></div><div class="res-acts">${badge}${acts}${wa}${deleteBtn}</div></div>`;
   }).join('');
 
   // Render spelers and betaling
@@ -1542,7 +1583,8 @@ function showToast(msg,err=false){
 
 function clearAllSlots(){
   if(!confirm('Alle slots verwijderen?')) return;
-  slots=[];reservations=[];save();renderAdmin();renderCal();  showToast('Alle slots verwijderd');
+  if(!confirm("Wil je ALLE slots verwijderen? Dit kan niet ongedaan worden gemaakt.")) return;
+  slots=[];reservations=[];save();renderAdmin();renderCal();showToast('Alle slots verwijderd');
 }
 
 function toggleChipNum(el, val) {
@@ -1828,12 +1870,29 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+async function deleteRes(id) {
+  if (!confirm("Wil je deze reservering permanent verwijderen?")) return;
+  const r = reservations.find(r => r.id === id);
+  if (r) {
+    // Reopen the slot
+    const s = slots.find(s => s.id === r.slotId);
+    if (s) { s.booked = false; sbSaveSlot(s); }
+  }
+  reservations = reservations.filter(r => r.id !== id);
+  save();
+  try { await supa.from('reservations').delete().eq('id', id); } catch(e) {}
+  renderAdmin(); renderCal();
+  showToast('Reservering verwijderd');
+}
+
 function cancelRes(id) {
+  if(!confirm("Wil je deze reservering annuleren?")) return;
   const r = reservations.find(r => r.id === id);
   if (!r) return;
   
   r.status = 'cancelled';
   sendCancelEmail(r);
+  try { supa.from('reservations').update({status:'cancelled'}).eq('id', r.id); } catch(e) {}
   const s = slots.find(s => s.id === r.slotId);
   if (s) { s.booked = false; sbSaveSlot(s); }
   save(); sbSaveReservation(r); renderAdmin(); renderCal();
@@ -2161,8 +2220,9 @@ function sendCancelEmail(res) {
 
 // ── SPELERS ──
 let spelers = JSON.parse(localStorage.getItem('ht_spelers') || '[]');
+let hiddenSpelers = JSON.parse(localStorage.getItem('ht_hidden_spelers') || '[]');
 
-function saveSpelers() { localStorage.setItem('ht_spelers', JSON.stringify(spelers)); }
+function saveSpelers() { localStorage.setItem('ht_spelers', JSON.stringify(spelers)); localStorage.setItem('ht_hidden_spelers', JSON.stringify(hiddenSpelers)); }
 
 function addSpeler() {
   const naam = document.getElementById('sp-naam').value.trim();
@@ -2187,8 +2247,16 @@ function addSpeler() {
 }
 
 function deleteSpeler(id) {
-  const before = spelers.length;
-  spelers = spelers.filter(s => String(s.id) !== String(id));
+  if(!confirm("Wil je deze speler verwijderen?")) return;
+  const strId = String(id);
+  // Check if it's a manual speler
+  const inSpelers = spelers.find(s => String(s.id) === strId);
+  if (inSpelers) {
+    spelers = spelers.filter(s => String(s.id) !== strId);
+  } else {
+    // It's a fromRes speler - add to hidden list
+    if (!hiddenSpelers.includes(strId)) hiddenSpelers.push(strId);
+  }
   saveSpelers();
   renderAdmin();
   showToast('Speler verwijderd');
@@ -2197,6 +2265,8 @@ function deleteSpeler(id) {
 function renderSpelers() {
   const allSpelers = [...spelers];
   reservations.filter(r => r.name).forEach(r => {
+    const resId = 'res_' + r.id;
+    if (hiddenSpelers.includes(resId)) return;
     if (!allSpelers.find(s => s.email && r.email && s.email.toLowerCase() === r.email.toLowerCase())) {
       allSpelers.push({
         id: 'res_' + r.id,
@@ -2278,8 +2348,15 @@ function renderSpelers() {
 function deleteSelectedSpelers() {
   const checked = document.querySelectorAll('.speler-checkbox:checked');
   if (!checked.length) { showToast('Geen spelers geselecteerd'); return; }
+  if(!confirm(`Wil je ${checked.length} speler(s) verwijderen?`)) return;
   checked.forEach(cb => {
-    spelers = spelers.filter(s => String(s.id) !== String(cb.dataset.id));
+    const strId = String(cb.dataset.id);
+    const inSpelers = spelers.find(s => String(s.id) === strId);
+    if (inSpelers) {
+      spelers = spelers.filter(s => String(s.id) !== strId);
+    } else {
+      if (!hiddenSpelers.includes(strId)) hiddenSpelers.push(strId);
+    }
   });
   saveSpelers();
   renderAdmin();
@@ -2301,6 +2378,7 @@ function geboortejaarFromAge(ageGroup) {
 
 // ── BETALING ──
 function renderBetaling() {
+  renderBetalingSummary();
   const all = reservations.filter(r => r.status === 'confirmed' || r.status === 'pending');
   const bl = document.getElementById('betaling-list');
   if (!bl) return;
@@ -2337,9 +2415,15 @@ function renderBetaling() {
         const isLocked = r.betaalLocked && m2;
         const dot = m2 === '' ? '⚪' : isPaid ? '<span style="color:#25a244;">●</span>' : '<span style="color:#ff4444;">●</span>';
         
+        const rowBg = m2==='hasan_cash' ? '#fde8d8' :
+                       m2==='tim_cash' ? '#d0d4e8' :
+                       m2==='qr' ? '#d0d4e8' :
+                       m2==='overschrijving' ? '#d0d4e8' :
+                       m2==='onbetaald' ? '#fdd0d0' : '#fff';
+
         if (isLocked) {
           // Show locked state - just info + edit button
-          return `<tr style="border-bottom:1px solid #f0f0f0;background:${i%2===0?'#fff':'#fafafa'};">
+          return `<tr style="border-bottom:1px solid #f0f0f0;background:${rowBg};">
             <td style="padding:8px;font-weight:600;color:#000033;">${r.name||'—'}</td>
             <td style="padding:8px;color:#555;">${d?d+'/'+m+'/'+y:'—'}</td>
             <td style="padding:8px;color:#555;">${r.coach||'—'}</td>
@@ -2355,7 +2439,7 @@ function renderBetaling() {
           </tr>`;
         } else {
           // Show editable state with dropdown
-          return `<tr style="border-bottom:1px solid #f0f0f0;background:${i%2===0?'#fff':'#fafafa'};">
+          return `<tr style="border-bottom:1px solid #f0f0f0;background:${rowBg};">
             <td style="padding:8px;font-weight:600;color:#000033;">${r.name||'—'}</td>
             <td style="padding:8px;color:#555;">${d?d+'/'+m+'/'+y:'—'}</td>
             <td style="padding:8px;color:#555;">${r.coach||'—'}</td>
@@ -2480,11 +2564,11 @@ function removeExtraWerkpunt(i) {
 }
 
 
-function deleteBetaling(id) {
+async function deleteBetaling(id) {
+  if(!confirm("Wil je deze betaling verwijderen?")) return;
   reservations = reservations.filter(r => r.id !== id);
   save();
-  // Also delete from Supabase
-  try { supa.from('reservations').delete().eq('id', id); } catch(e) {}
+  try { await supa.from('reservations').delete().eq('id', id); } catch(e) { console.log('Supabase delete error:', e); }
   renderAdmin();
   showToast('Betaling verwijderd');
 }
@@ -2503,13 +2587,66 @@ function unlockBetaling(id) {
   save(); sbSaveReservation(r); renderAdmin();
 }
 
+
+// ── HISTORISCHE BETALINGEN (Hasan_vergoedingen.xlsx) ──
+const historischeBetalingen = [{"id": 90000, "name": "Laurens", "date": "2025-10-19", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "", "betaalLocked": true, "paid": true, "price": "", "note": " (50/50 Tim/Hasan)"}, {"id": 90001, "name": "Jenne", "date": "2025-11-02", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90002, "name": "Bryce", "date": "2025-11-02", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90003, "name": "Bryce", "date": "2025-11-11", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "50", "betaalLocked": true, "paid": true, "price": "€50"}, {"id": 90004, "name": "Wout", "date": "2025-11-30", "coach": "Tim", "service": "Privé Training", "status": "confirmed", "betaalMethod": "tim_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90005, "name": "Zuco Isma", "date": "2025-11-30", "coach": "Tim", "service": "Privé Training", "status": "confirmed", "betaalMethod": "tim_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90006, "name": "Laurens / Nicola", "date": "2025-11-30", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "65", "betaalLocked": true, "paid": true, "price": "€65", "note": " (50/50 Tim/Hasan)"}, {"id": 90007, "name": "Jules", "date": "2025-12-10", "coach": "Tim", "service": "Privé Training", "status": "confirmed", "betaalMethod": "tim_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90008, "name": "Liam", "date": "2025-12-14", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90009, "name": "Nicola", "date": "2025-12-14", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "65", "betaalLocked": true, "paid": true, "price": "€65"}, {"id": 90010, "name": "Laurens", "date": "2025-12-14", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90011, "name": "Jules", "date": "2025-12-19", "coach": "Tim", "service": "Privé Training", "status": "confirmed", "betaalMethod": "tim_cash", "betaalBedrag": "", "betaalLocked": true, "paid": true, "price": ""}, {"id": 90012, "name": "Liam", "date": "2025-12-20", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90013, "name": "Nicola", "date": "2025-12-20", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "65", "betaalLocked": true, "paid": true, "price": "€65"}, {"id": 90014, "name": "Wout", "date": "2025-12-21", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "80", "betaalLocked": true, "paid": true, "price": "€80"}, {"id": 90015, "name": "Nicola", "date": "2025-12-27", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "65", "betaalLocked": true, "paid": true, "price": "€65"}, {"id": 90016, "name": "Zoë (Vief)", "date": "2025-12-27", "coach": "Tim", "service": "Privé Training", "status": "confirmed", "betaalMethod": "tim_cash", "betaalBedrag": "", "betaalLocked": true, "paid": true, "price": "", "note": "factuur"}, {"id": 90017, "name": "Clara", "date": "2026-04-12", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "40", "betaalLocked": true, "paid": true, "price": "€40"}, {"id": 90018, "name": "Rome", "date": "2026-04-19", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "60", "betaalLocked": true, "paid": true, "price": "€60"}, {"id": 90019, "name": "Matteo", "date": "2026-04-19", "coach": "", "service": "Privé Training", "status": "confirmed", "betaalMethod": "onbetaald", "betaalBedrag": "", "betaalLocked": true, "paid": false, "price": "", "note": "TB"}, {"id": 90020, "name": "Jenne", "date": "2026-04-26", "coach": "", "service": "Privé Training", "status": "confirmed", "betaalMethod": "onbetaald", "betaalBedrag": "", "betaalLocked": true, "paid": false, "price": ""}, {"id": 90021, "name": "Romeo", "date": "2026-05-09", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "65", "betaalLocked": true, "paid": true, "price": "€65"}, {"id": 90022, "name": "Louis", "date": "2026-05-09", "coach": "Tim", "service": "Privé Training", "status": "confirmed", "betaalMethod": "tim_cash", "betaalBedrag": "65", "betaalLocked": true, "paid": true, "price": "€65"}, {"id": 90023, "name": "Cisse", "date": "2026-05-10", "coach": "Hasan", "service": "Privé Training", "status": "confirmed", "betaalMethod": "hasan_cash", "betaalBedrag": "65", "betaalLocked": true, "paid": true, "price": "€65"}, {"id": 90024, "name": "Jules", "date": "2026-05-10", "coach": "", "service": "Privé Training", "status": "confirmed", "betaalMethod": "onbetaald", "betaalBedrag": "", "betaalLocked": true, "paid": false, "price": "", "note": "5x vzw"}];
+function loadHistorischeBetalingen() {
+  historischeBetalingen.forEach(r => {
+    if (!reservations.find(x => x.id === r.id)) {
+      reservations.push(r);
+    }
+  });
+  save();
+}
+
+
+function renderBetalingSummary() {
+  const el = document.getElementById('betaling-summary');
+  if (!el) return;
+  
+  const all = reservations.filter(r => r.status === 'confirmed' || r.status === 'pending');
+  
+  let hasanTotal = 0, timTotal = 0, qrTotal = 0, ovTotal = 0, onbetaald = 0;
+  
+  all.forEach(r => {
+    const bedrag = parseFloat(r.betaalBedrag) || 0;
+    if (r.betaalMethod === 'hasan_cash') hasanTotal += bedrag;
+    else if (r.betaalMethod === 'tim_cash') timTotal += bedrag;
+    else if (r.betaalMethod === 'qr') qrTotal += bedrag;
+    else if (r.betaalMethod === 'overschrijving') ovTotal += bedrag;
+    else if (r.betaalMethod === 'onbetaald' || !r.betaalMethod) onbetaald++;
+  });
+
+  const totaalBetaald = hasanTotal + timTotal + qrTotal + ovTotal;
+
+  el.innerHTML = `
+    <div style="background:#fde8d8;border-radius:12px;padding:16px;border:1px solid rgba(232,87,10,.2);">
+      <div style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">💵 Hasan (cash)</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#000033;">€${hasanTotal.toFixed(0)}</div>
+    </div>
+    <div style="background:#d0d4e8;border-radius:12px;padding:16px;border:1px solid rgba(0,0,51,.15);">
+      <div style="font-size:11px;font-weight:700;color:#000033;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">💵 Tim (cash)</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#000033;">€${timTotal.toFixed(0)}</div>
+    </div>
+    <div style="background:#d0d4e8;border-radius:12px;padding:16px;border:1px solid rgba(0,0,51,.15);">
+      <div style="font-size:11px;font-weight:700;color:#000033;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">📱 QR + 🏦 Overschrijving</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#000033;">€${(qrTotal + ovTotal).toFixed(0)}</div>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:16px;border:1px solid #e0e0e8;">
+      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">📊 Totaal betaald</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#000033;">€${totaalBetaald.toFixed(0)}</div>
+      ${onbetaald > 0 ? `<div style="font-size:11px;color:#ff4444;margin-top:4px;">❌ ${onbetaald} nog niet betaald</div>` : '<div style="font-size:11px;color:#25a244;margin-top:4px;">✅ Alles betaald</div>'}
+    </div>
+  `;
+}
+
 // INIT
 applyLang();
 checkAuth();
 document.getElementById('tab-home').classList.add('active');
 const vbgInit = document.getElementById('video-bg');
 if (vbgInit) vbgInit.style.display = 'block';
-sbLoadData();
+sbLoadData().then(() => { loadHistorischeBetalingen(); renderAdmin(); });
 </script>
 
 <!-- ══ CONTACT PAGE ══ -->
