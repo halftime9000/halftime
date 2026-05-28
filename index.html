@@ -2381,7 +2381,7 @@ function geboortejaarFromAge(ageGroup) {
 // ── BETALING ──
 function renderBetaling() {
   renderBetalingSummary();
-  const all = reservations.filter(r => r.status === 'confirmed' || r.status === 'pending');
+  const all = reservations.filter(r => r.status === 'confirmed' || r.status === 'pending').sort((a,b) => (a.date||'').localeCompare(b.date||''));
   const bl = document.getElementById('betaling-list');
   if (!bl) return;
   if (!all.length) {
@@ -2612,7 +2612,7 @@ function renderBetalingSummary() {
   const el = document.getElementById('betaling-summary');
   if (!el) return;
   
-  const all = reservations.filter(r => r.status === 'confirmed' || r.status === 'pending');
+  const all = reservations.filter(r => r.status === 'confirmed' || r.status === 'pending').sort((a,b) => (a.date||'').localeCompare(b.date||''));
   
   let hasanTotal = 0, timTotal = 0, qrTotal = 0, ovTotal = 0, onbetaald = 0;
   
