@@ -1073,6 +1073,69 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   </div>
 </div>
 
+
+<!-- SPELER EDIT MODAL -->
+<div class="speler-modal-ov" id="speler-edit-ov">
+  <div class="speler-modal">
+    <button class="speler-modal-close" onclick="closeEditSpeler()">✕</button>
+    <h2>SPELER BEWERKEN</h2>
+    <div class="add-speler-form" style="margin-bottom:0;">
+      <input type="hidden" id="edit-sp-id">
+      <div class="speler-form-grid">
+        <input class="speler-input" id="edit-sp-naam" placeholder="Naam speler">
+        <input class="speler-input" id="edit-sp-ouder" placeholder="Naam ouder">
+        <select class="speler-input" id="edit-sp-geboortejaar">
+          <option value="">Selecteer geboortejaar</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+          <option value="2019">2019</option>
+          <option value="2018">2018</option>
+          <option value="2017">2017</option>
+          <option value="2016">2016</option>
+          <option value="2015">2015</option>
+          <option value="2014">2014</option>
+          <option value="2013">2013</option>
+          <option value="2012">2012</option>
+          <option value="2011">2011</option>
+          <option value="2010">2010</option>
+          <option value="2009">2009</option>
+          <option value="2008">2008</option>
+          <option value="2007">2007</option>
+          <option value="2006">2006</option>
+          <option value="2005">2005</option>
+          <option value="2004">2004</option>
+          <option value="2003">2003</option>
+          <option value="2002">2002</option>
+        </select>
+        <input class="speler-input" id="edit-sp-telefoon" placeholder="Telefoonnummer">
+        <input class="speler-input" id="edit-sp-email" placeholder="E-mailadres">
+        <input class="speler-input" id="edit-sp-club" placeholder="Club (optioneel)">
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">Werkpunten</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;" id="edit-sp-werk-group">
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Basistechniek"><div class="re-box"></div>Basistechniek</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Tweevoetigheid"><div class="re-box"></div>Tweevoetigheid</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Handelingsnelheid"><div class="re-box"></div>Handelingsnelheid</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Scanning"><div class="re-box"></div>Scanning</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Decision making"><div class="re-box"></div>Decision making</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Verdedigen/duels"><div class="re-box"></div>Verdedigen/duels</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Snelheid"><div class="re-box"></div>Snelheid</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Explosiviteit"><div class="re-box"></div>Explosiviteit</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Loop coördinatie"><div class="re-box"></div>Loop coördinatie</div>
+          <div class="re-chip" onclick="this.classList.toggle('re-sel')" data-val="Wendbaarheid"><div class="re-box"></div>Wendbaarheid</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">Extra werkpunt <span style="color:#aaa;font-weight:400;">(druk Enter)</span></label>
+        <input class="speler-input" id="edit-sp-werk-extra" placeholder="Typ extra werkpunt..." style="width:100%;margin-top:6px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditExtraWerkpunt();}">
+        <div id="edit-sp-werk-extra-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+      </div>
+      <button class="btn-add" onclick="saveEditSpeler()" style="margin-top:14px;">💾 OPSLAAN</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="modal-ov" id="modal-ov">
   <div class="modal">
@@ -2251,14 +2314,8 @@ function addSpeler() {
 function deleteSpeler(id) {
   if(!confirm("Wil je deze speler verwijderen?")) return;
   const strId = String(id);
-  // Check if it's a manual speler
-  const inSpelers = spelers.find(s => String(s.id) === strId);
-  if (inSpelers) {
-    spelers = spelers.filter(s => String(s.id) !== strId);
-  } else {
-    // It's a fromRes speler - add to hidden list
-    if (!hiddenSpelers.includes(strId)) hiddenSpelers.push(strId);
-  }
+  spelers = spelers.filter(s => String(s.id) !== strId);
+  if (!hiddenSpelers.includes(strId)) hiddenSpelers.push(strId);
   saveSpelers();
   renderAdmin();
   showToast('Speler verwijderd');
@@ -2318,8 +2375,9 @@ function renderSpelers() {
       <td style="padding:7px 8px;color:#555;white-space:nowrap;">${s.telefoon||'—'}</td>
       <td style="padding:7px 8px;color:#555;">${s.email||'—'}</td>
       <td style="padding:7px 8px;color:var(--orange);font-size:11px;">${s.werk&&s.werk.length?s.werk.join(', '):'—'}</td>
-      <td style="padding:7px 8px;width:30px;">
-        ${!s.fromRes?`<button onclick="deleteSpeler('${s.id}')" style="background:none;border:none;color:#ddd;cursor:pointer;font-size:16px;padding:0;">✕</button>`:''}
+      <td style="padding:7px 8px;white-space:nowrap;">
+        <button onclick="editSpeler('${s.id}')" style="background:none;border:1px solid #ddd;border-radius:6px;padding:3px 7px;cursor:pointer;font-size:11px;color:#888;margin-right:4px;">✏️</button>
+        <button onclick="deleteSpeler('${s.id}')" style="background:none;border:1px solid #ffcccc;border-radius:6px;padding:3px 7px;cursor:pointer;font-size:11px;color:#ff4444;">✕</button>
       </td>
     </tr>`;
   });
@@ -2348,17 +2406,16 @@ function renderSpelers() {
 }
 
 function deleteSelectedSpelers() {
-  const checked = document.querySelectorAll('.speler-checkbox:checked');
+  const checked = Array.from(document.querySelectorAll('.speler-checkbox:checked'));
   if (!checked.length) { showToast('Geen spelers geselecteerd'); return; }
   if(!confirm(`Wil je ${checked.length} speler(s) verwijderen?`)) return;
   checked.forEach(cb => {
     const strId = String(cb.dataset.id);
-    const inSpelers = spelers.find(s => String(s.id) === strId);
-    if (inSpelers) {
-      spelers = spelers.filter(s => String(s.id) !== strId);
-    } else {
-      if (!hiddenSpelers.includes(strId)) hiddenSpelers.push(strId);
-    }
+    // Remove from spelers array
+    const before = spelers.length;
+    spelers = spelers.filter(s => String(s.id) !== strId);
+    // Also add to hidden (for fromRes players)
+    if (!hiddenSpelers.includes(strId)) hiddenSpelers.push(strId);
   });
   saveSpelers();
   renderAdmin();
@@ -2669,6 +2726,112 @@ function renderBetalingSummary() {
       ${onbetaald > 0 ? `<div style="font-size:11px;color:#ff4444;margin-top:4px;">❌ ${onbetaald} nog niet betaald</div>` : '<div style="font-size:11px;color:#25a244;margin-top:4px;">✅ Alles betaald</div>'}
     </div>
   `;
+}
+
+
+let editExtraWerkpunten = [];
+
+function editSpeler(id) {
+  const strId = String(id);
+  // Find in spelers or fromRes
+  let s = spelers.find(sp => String(sp.id) === strId);
+  if (!s) {
+    // fromRes - find in reservations
+    const resId = strId.replace('res_', '');
+    const r = reservations.find(r => String(r.id) === resId);
+    if (r) {
+      s = {
+        id: strId,
+        naam: r.name || '',
+        ouder: r.parent || '',
+        jaar: r.age ? geboortejaarFromAge(r.age) : 0,
+        telefoon: r.phone || '',
+        email: r.email || '',
+        werk: r.werk || [],
+        fromRes: true
+      };
+    }
+  }
+  if (!s) return;
+
+  document.getElementById('edit-sp-id').value = strId;
+  document.getElementById('edit-sp-naam').value = s.naam || '';
+  document.getElementById('edit-sp-ouder').value = s.ouder || '';
+  document.getElementById('edit-sp-geboortejaar').value = s.jaar || '';
+  document.getElementById('edit-sp-telefoon').value = s.telefoon || '';
+  document.getElementById('edit-sp-email').value = s.email || '';
+  document.getElementById('edit-sp-club').value = s.club || '';
+
+  // Reset werkpunten chips
+  document.querySelectorAll('#edit-sp-werk-group .re-chip').forEach(c => {
+    c.classList.toggle('re-sel', (s.werk||[]).includes(c.dataset.val));
+  });
+
+  // Extra werkpunten
+  const stdWerk = ['Basistechniek','Tweevoetigheid','Handelingsnelheid','Scanning','Decision making','Verdedigen/duels','Snelheid','Explosiviteit','Loop coördinatie','Wendbaarheid'];
+  editExtraWerkpunten = (s.werk||[]).filter(w => !stdWerk.includes(w));
+  renderEditExtraWerkpunten();
+
+  document.getElementById('speler-edit-ov').classList.add('show');
+}
+
+function closeEditSpeler() {
+  document.getElementById('speler-edit-ov').classList.remove('show');
+  editExtraWerkpunten = [];
+}
+
+function addEditExtraWerkpunt() {
+  const input = document.getElementById('edit-sp-werk-extra');
+  const val = input.value.trim();
+  if (!val) return;
+  editExtraWerkpunten.push(val);
+  input.value = '';
+  renderEditExtraWerkpunten();
+}
+
+function renderEditExtraWerkpunten() {
+  const list = document.getElementById('edit-sp-werk-extra-list');
+  if (!list) return;
+  list.innerHTML = editExtraWerkpunten.map((w, i) =>
+    `<div style="padding:5px 10px;background:#fff8f5;border:1px solid var(--orange);border-radius:20px;font-size:12px;color:#000033;display:flex;align-items:center;gap:6px;">
+      ${w} <button onclick="editExtraWerkpunten.splice(${i},1);renderEditExtraWerkpunten();" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:12px;padding:0;">✕</button>
+    </div>`
+  ).join('');
+}
+
+function saveEditSpeler() {
+  const id = document.getElementById('edit-sp-id').value;
+  const naam = document.getElementById('edit-sp-naam').value.trim();
+  const ouder = document.getElementById('edit-sp-ouder').value.trim();
+  const jaar = parseInt(document.getElementById('edit-sp-geboortejaar').value) || 0;
+  const telefoon = document.getElementById('edit-sp-telefoon').value.trim();
+  const email = document.getElementById('edit-sp-email').value.trim();
+  const club = document.getElementById('edit-sp-club').value.trim();
+  const werk = [
+    ...Array.from(document.querySelectorAll('#edit-sp-werk-group .re-chip.re-sel')).map(c => c.dataset.val),
+    ...editExtraWerkpunten
+  ];
+
+  const existing = spelers.find(sp => String(sp.id) === String(id));
+  if (existing) {
+    existing.naam = naam;
+    existing.ouder = ouder;
+    existing.jaar = jaar;
+    existing.telefoon = telefoon;
+    existing.email = email;
+    existing.club = club;
+    existing.werk = werk;
+  } else {
+    // fromRes - convert to manual speler
+    const newSpeler = { id: Date.now(), naam, ouder, jaar, telefoon, email, club, werk };
+    spelers.push(newSpeler);
+    // Add original res_id to hidden list so it doesn't duplicate
+    if (!hiddenSpelers.includes(String(id))) hiddenSpelers.push(String(id));
+  }
+  saveSpelers();
+  closeEditSpeler();
+  renderAdmin();
+  showToast('Speler opgeslagen!');
 }
 
 // INIT
