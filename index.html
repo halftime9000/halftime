@@ -2444,8 +2444,17 @@ function renderBetaling() {
           return `<tr style="border-bottom:1px solid #f0f0f0;background:${rowBg};">
             <td style="padding:8px;font-weight:600;color:#000033;">${r.name||'—'}</td>
             <td style="padding:8px;color:#555;">${d?d+'/'+m+'/'+y:'—'}</td>
-            <td style="padding:8px;color:#555;">${r.coach||'—'}</td>
-            <td style="padding:8px;color:var(--orange);font-weight:600;">${r.price||'—'}</td>
+            <td style="padding:8px;">
+              <select onchange="setBetalingCoach(${r.id},this.value)" style="border:1px solid #ddd;border-radius:6px;padding:4px 6px;font-size:12px;outline:none;background:#fff;">
+                <option value="" ${!r.coach?'selected':''}>—</option>
+                <option value="Hasan" ${r.coach==='Hasan'?'selected':''}>Hasan</option>
+                <option value="Tim" ${r.coach==='Tim'?'selected':''}>Tim</option>
+                <option value="Beide" ${r.coach==='Beide'?'selected':''}>Beide</option>
+              </select>
+            </td>
+            <td style="padding:8px;">
+              <input type="text" value="${r.price||''}" placeholder="€" oninput="setBetalingPrice(${r.id},this.value)" style="width:70px;padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px;outline:none;color:var(--orange);font-weight:600;">
+            </td>
             <td style="padding:8px;">
               <select onchange="setBetaalMethod(${r.id},this.value)" style="border:1px solid #ddd;border-radius:6px;padding:4px 8px;font-size:12px;outline:none;background:#fff;">
                 <option value="" ${m2===''?'selected':''}>— Selecteer —</option>
@@ -2473,6 +2482,20 @@ function renderBetaling() {
       }).join('')}
     </tbody>
   </table>`;
+}
+
+function setBetalingCoach(id, coach) {
+  const r = reservations.find(r => r.id === id);
+  if (!r) return;
+  r.coach = coach;
+  save(); sbSaveReservation(r);
+}
+
+function setBetalingPrice(id, price) {
+  const r = reservations.find(r => r.id === id);
+  if (!r) return;
+  r.price = price;
+  save(); sbSaveReservation(r);
 }
 
 function setBetaalMethod(id, method) {
