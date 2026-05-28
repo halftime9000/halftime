@@ -1919,10 +1919,7 @@ document.addEventListener('DOMContentLoaded', function() {
     logoClickTimer = setTimeout(() => {
       if (logoClickCount >= 3) {
         logoClickCount = 0;
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('page-admin').classList.add('active');
-        renderAdmin();
+        openAdminPass();
       } else {
         logoClickCount = 0;
         navTo('landing', null);
@@ -2832,6 +2829,25 @@ function saveEditSpeler() {
   closeEditSpeler();
   renderAdmin();
   showToast('Speler opgeslagen!');
+}
+
+
+const ADMIN_HASH = '7b592f73b25c5f17398fc45741f7476a071ff1ee9433875cfa2b53ab657c58c9';
+
+function openAdminPass() {
+  const pw = prompt('Admin wachtwoord:');
+  if (!pw) return;
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw)).then(buf => {
+    const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    if (hash === ADMIN_HASH) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-admin').classList.add('active');
+      renderAdmin();
+    } else {
+      alert('Onjuist wachtwoord');
+    }
+  });
 }
 
 // INIT
