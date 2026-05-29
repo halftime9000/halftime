@@ -1632,7 +1632,7 @@ function renderAdmin(){
     }
   }
   const rl=document.getElementById('admin-res');
-  rl.innerHTML=!reservations.length?`<div class="empty">${t('nores')}</div>`:reservations.map(r=>{
+  rl.innerHTML=!reservations.length?`<div class="empty">${t('nores')}</div>`:[...reservations].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(r=>{
     const [y,m,d]=r.date.split('-');
     const badge=r.status==='confirmed'?`<span class="badge badge-o">${t('conf')}</span>`:r.status==='rejected'?`<span class="badge badge-r">${t('rej')}</span>`:r.status==='cancelled'?`<span class="badge badge-c">${lang==='nl'?'Geannuleerd':'Cancelled'}</span>`:`<span class="badge badge-y">${t('pend')}</span>`;
     const acts=r.status==='pending'
