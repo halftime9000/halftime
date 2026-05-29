@@ -1963,17 +1963,17 @@ async function deleteRes(id) {
   showToast('Reservering verwijderd');
 }
 
-function cancelRes(id) {
+async function cancelRes(id) {
   if(!confirm("Wil je deze reservering annuleren?")) return;
   const r = reservations.find(r => r.id === id);
   if (!r) return;
   
   r.status = 'cancelled';
   sendCancelEmail(r);
-  try { supa.from('reservations').update({status:'cancelled'}).eq('id', r.id); } catch(e) {}
+  try { await supa.from('reservations').update({status:'cancelled'}).eq('id', r.id); } catch(e) {}
   const s = slots.find(s => s.id === r.slotId);
-  if (s) { s.booked = false; sbSaveSlot(s); }
-  save(); sbSaveReservation(r); renderAdmin(); renderCal();
+  if (s) { s.booked = false; await sbSaveSlot(s); }
+  save(); renderAdmin(); renderCal();
   showToast(lang==='nl'?'Reservering geannuleerd':'Reservation cancelled');
 }
 
