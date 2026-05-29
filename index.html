@@ -1661,7 +1661,10 @@ function renderAdmin(){
         ${badge}
         <div style="font-weight:600;color:#000033;font-size:14px;">${r.name||'—'} <span style="color:#888;font-size:12px;font-weight:400;">${r.age||''}</span></div>
         <div style="color:#888;font-size:12px;margin-left:4px;">${d?'📅 '+d+'/'+m+'/'+y:''} ${r.start?'· '+r.start:''} ${r.coach?'· '+r.coach:''}</div>
-        <div class="res-row-chevron">▼</div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+          ${acts}${wa}${deleteBtn}
+          <span class="res-row-chevron">▼</span>
+        </div>
       </div>
       <div class="res-row-body">
         ${r.service?`<div class="res-det">🏷️ ${r.service}${r.price?' · '+r.price:''}</div>`:''}
@@ -1671,7 +1674,6 @@ function renderAdmin(){
         ${r.sterke&&r.sterke.length?`<div class="res-det">💪 ${r.sterke.join(', ')}</div>`:''}
         ${r.werk&&r.werk.length?`<div class="res-det">🎯 ${r.werk.join(', ')}</div>`:''}
         ${r.note?`<div class="res-det">💬 ${r.note}</div>`:''}
-        <div class="res-acts" style="margin-top:10px;">${acts}${wa}${deleteBtn}</div>
       </div>
     </div>`;
   }).join('');
