@@ -1930,7 +1930,7 @@ function onLogin() {
       const cnt = getTrainingCount(r.name, r.email);
       const pkg = getPackageSize(r.service);
       const statusLabel = r.status==='confirmed'?'Bevestigd':r.status==='cancelled'?'Geannuleerd':r.status==='rejected'?'Afgewezen':'In afwachting';
-      const progressHtml = cnt > 1 ? renderProgressDots(cnt, Math.max(cnt, pkg>1?pkg:5)) : '';
+      const progressHtml = renderProgressDots(cnt, Math.max(cnt, pkg>1?pkg:5));
       return `<div class="past-res-row">
         <div class="past-res-date">📅 ${d}/${m}/${y} · ${r.start}–${r.end}</div>
         <div class="past-res-detail">${r.type} · ${r.coach||''} · ${r.service||''}</div>
