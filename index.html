@@ -2213,20 +2213,7 @@ function openAdminPanel() {
         navBtn.classList.remove('logged');
         navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
         navBtn.onclick = handleNavLogin;
-        navTo('landing', null);
-        document.getElementById('tab-home').classList.add('active');
-        // Force correct button after any checkAuth calls
-        setTimeout(() => {
-          const nb = document.getElementById('tab-login');
-          if (nb && !currentUser) {
-            nb.innerHTML = lang==='nl'?'Inloggen':'Login';
-            nb.classList.remove('logged');
-            nb.style.background = '';
-            nb.style.color = '';
-            nb.style.borderColor = '';
-            nb.onclick = handleNavLogin;
-          }
-        }, 200);
+        window.location.href = window.location.pathname;
       }
     };
   }
@@ -3015,20 +3002,7 @@ function openAdminPanel() {
         navBtn.classList.remove('logged');
         navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
         navBtn.onclick = handleNavLogin;
-        navTo('landing', null);
-        document.getElementById('tab-home').classList.add('active');
-        // Force correct button after any checkAuth calls
-        setTimeout(() => {
-          const nb = document.getElementById('tab-login');
-          if (nb && !currentUser) {
-            nb.innerHTML = lang==='nl'?'Inloggen':'Login';
-            nb.classList.remove('logged');
-            nb.style.background = '';
-            nb.style.color = '';
-            nb.style.borderColor = '';
-            nb.onclick = handleNavLogin;
-          }
-        }, 200);
+        window.location.href = window.location.pathname;
       }
     };
   }
