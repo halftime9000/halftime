@@ -1405,7 +1405,7 @@ function renderCal() {
   for(let day=1;day<=dim;day++){
     const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const isPast=new Date(ds)<new Date(today.toDateString());
-    const hasS=slots.some(s=>s.date===ds&&!s.booked);
+    const hasS=slots.some(s=>s.date===ds&&!s.booked&&(s.coach===selCoach||s.coach==='both'||!s.coach));
     const todayLocal=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     const isToday=ds===todayLocal;
     const d=document.createElement('div');
@@ -2148,6 +2148,22 @@ function openAdminPanel() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-admin').classList.add('active');
+  // Show admin indicator in nav
+  const navBtn = document.getElementById('tab-login');
+  if (navBtn) { 
+    navBtn.innerHTML = '<span>🔐 Admin</span>'; 
+    navBtn.classList.add('logged');
+    navBtn.onclick = function() { 
+      if(confirm('Admin uitloggen?')) {
+        localStorage.removeItem('ht_admin_token');
+        navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
+        navBtn.classList.remove('logged');
+        navBtn.onclick = handleNavLogin;
+        navTo('landing', null);
+        document.getElementById('tab-home').classList.add('active');
+      }
+    };
+  }
   renderAdmin();
 }
 
@@ -2911,6 +2927,22 @@ function openAdminPanel() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-admin').classList.add('active');
+  // Show admin indicator in nav
+  const navBtn = document.getElementById('tab-login');
+  if (navBtn) { 
+    navBtn.innerHTML = '<span>🔐 Admin</span>'; 
+    navBtn.classList.add('logged');
+    navBtn.onclick = function() { 
+      if(confirm('Admin uitloggen?')) {
+        localStorage.removeItem('ht_admin_token');
+        navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
+        navBtn.classList.remove('logged');
+        navBtn.onclick = handleNavLogin;
+        navTo('landing', null);
+        document.getElementById('tab-home').classList.add('active');
+      }
+    };
+  }
   renderAdmin();
 }
 
