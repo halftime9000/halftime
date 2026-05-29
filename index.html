@@ -666,6 +666,12 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   .res-row-chevron { margin-left:auto; color:#aaa; font-size:12px; transition:transform .15s; }
   .res-row.expanded .res-row-chevron { transform:rotate(180deg); }
 
+
+  .training-progress { display:flex; gap:4px; align-items:center; margin-top:4px; }
+  .training-dot { width:10px; height:10px; border-radius:50%; background:#e0e0e8; }
+  .training-dot.done { background:var(--orange); }
+  .training-count { font-size:11px; color:#888; margin-left:6px; }
+
 </style>
 </head>
 <body>
@@ -1661,6 +1667,7 @@ function renderAdmin(){
         ${badge}
         <div style="font-weight:600;color:#000033;font-size:14px;">${r.name||'—'} <span style="color:#888;font-size:12px;font-weight:400;">${r.age||''}</span></div>
         <div style="color:#888;font-size:12px;margin-left:4px;">${d?'📅 '+d+'/'+m+'/'+y:''} ${r.start?'· '+r.start:''} ${r.coach?'· '+r.coach:''}</div>
+        ${(()=>{ const cnt=getTrainingCount(r.name,r.email); const pkg=getPackageSize(r.service); return cnt>1?renderProgressDots(cnt,Math.max(cnt,pkg>1?pkg:5)):''; })()}
         <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
           ${acts}${wa}${deleteBtn}
           <span class="res-row-chevron">▼</span>
@@ -1889,11 +1896,15 @@ function onLogin() {
     list.innerHTML = myRes.map(r => {
       const [y,m,d] = r.date.split('-');
       const statusColor = r.status==='confirmed'?'#E8570A':r.status==='cancelled'?'#999':r.status==='rejected'?'var(--red)':'#cc9900';
+      const cnt = getTrainingCount(r.name, r.email);
+      const pkg = getPackageSize(r.service);
       const statusLabel = r.status==='confirmed'?'Bevestigd':r.status==='cancelled'?'Geannuleerd':r.status==='rejected'?'Afgewezen':'In afwachting';
+      const progressHtml = cnt > 1 ? renderProgressDots(cnt, Math.max(cnt, pkg>1?pkg:5)) : '';
       return `<div class="past-res-row">
         <div class="past-res-date">📅 ${d}/${m}/${y} · ${r.start}–${r.end}</div>
         <div class="past-res-detail">${r.type} · ${r.coach||''} · ${r.service||''}</div>
         <span class="past-res-status" style="background:${statusColor}22;color:${statusColor}">${statusLabel}</span>
+        ${progressHtml}
       </div>`;
     }).join('');
   }
@@ -2981,6 +2992,31 @@ function checkAdminPass() {
   });
 }
 
+
+function getTrainingCount(name, email) {
+  // Count confirmed reservations for this player
+  return reservations.filter(r => 
+    r.status === 'confirmed' && 
+    (r.name && r.name.toLowerCase() === (name||'').toLowerCase() ||
+     r.email && r.email.toLowerCase() === (email||'').toLowerCase())
+  ).length;
+}
+
+function getPackageSize(service) {
+  if (!service) return 1;
+  if (service.includes('5 Train') || service.includes('5x')) return 5;
+  if (service.includes('2on1') || service.includes('3on1') || service.includes('4on1')) return 1;
+  return 1;
+}
+
+function renderProgressDots(count, total) {
+  let dots = '';
+  for (let i = 0; i < total; i++) {
+    dots += `<div class="training-dot${i < count ? ' done' : ''}"></div>`;
+  }
+  return `<div class="training-progress">${dots}<span class="training-count">${count}/${total}</span></div>`;
+}
+
 // INIT
 applyLang();
 checkAuth();
@@ -3207,6 +3243,7 @@ sbLoadData().then(() => { loadHistorischeBetalingen(); renderAdmin(); });
   <div class="thanks-wrap">
     <div class="thanks-icon">🎉</div>
     <h1 class="thanks-title" id="th-title">BEDANKT!</h1>
+    <div id="training-number-info" style="display:none;margin-bottom:16px;"></div>
     <p class="thanks-sub" id="th-sub">Je reservering is bevestigd! De details zijn naar jouw e-mailadres verstuurd.<br><br>Tot op het veld! ⚽</p>
     <div class="thanks-card" id="th-card"></div>
     <button class="thanks-btn" onclick="navTo('landing',null)">TERUG NAAR HOME</button>
