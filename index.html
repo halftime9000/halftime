@@ -1759,6 +1759,7 @@ function pickService(id, el) {
   navTimeout = setTimeout(() => {
     if (document.getElementById('page-service').classList.contains('active')) {
       navTo('booking', null);
+      renderCal();
     }
   }, 200);
 }
@@ -3023,7 +3024,7 @@ checkAuth();
 document.getElementById('tab-home').classList.add('active');
 const vbgInit = document.getElementById('video-bg');
 if (vbgInit) vbgInit.style.display = 'block';
-sbLoadData().then(() => { loadHistorischeBetalingen(); renderAdmin(); renderCal(); });
+sbLoadData().then(() => { loadHistorischeBetalingen(); renderAdmin(); if(document.getElementById('page-booking')?.classList.contains('active')) renderCal(); });
 </script>
 
 <!-- ══ CONTACT PAGE ══ -->
