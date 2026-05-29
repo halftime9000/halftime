@@ -1653,7 +1653,7 @@ function renderAdmin(){
         ?`<button class="btn-ok" onclick="event.stopPropagation();approveRes(${rid})">${t('approve')}</button><button class="btn-no" onclick="event.stopPropagation();rejectRes(${rid})">${t('reject')}</button>`
         :r.status==='confirmed'
         ?`<button class="btn-no" onclick="event.stopPropagation();cancelRes(${rid})">${t('cancel')}</button>`
-        :r.status==='cancelled'?'':'';
+        :r.status==='cancelled'?`<button class="btn-ok" onclick="event.stopPropagation();restoreRes(${rid})">↩ Herstel</button>`:''
     const deleteBtn = `<button onclick="event.stopPropagation();deleteRes(${rid})" style="padding:5px 10px;background:none;border:1px solid #ffcccc;border-radius:8px;color:#ff4444;font-size:12px;cursor:pointer;">🗑️</button>`;
     const wa=r.phone?`<button class="btn-wa" onclick="event.stopPropagation();sendWa(${rid})">📱 WA</button>`:'';
     return `<div class="res-row" onclick="this.classList.toggle('expanded')">
@@ -1994,6 +1994,19 @@ async function deleteRes(id) {
   try { await supa.from('reservations').delete().eq('id', id); } catch(e) {}
   renderAdmin(); renderCal();
   showToast('Reservering verwijderd');
+}
+
+async function restoreRes(id) {
+  if(!confirm("Wil je deze reservering herstellen?")) return;
+  const r = reservations.find(r => r.id === id);
+  if (!r) return;
+  r.status = 'confirmed';
+  // Re-book the slot
+  const s = slots.find(s => s.id === r.slotId);
+  if (s) { s.booked = true; await sbSaveSlot(s); }
+  await sbSaveReservation(r);
+  save(); renderAdmin(); renderCal();
+  showToast('Reservering hersteld!');
 }
 
 async function cancelRes(id) {
