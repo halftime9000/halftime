@@ -1833,6 +1833,7 @@ function renderServices() {
 
 // ── AUTH ──
 let currentUser = JSON.parse(localStorage.getItem('ht_user') || 'null');
+let isAdminMode = false;
 
 function getUsers() { return JSON.parse(localStorage.getItem('ht_users') || '[]'); }
 function saveUsers(u) { localStorage.setItem('ht_users', JSON.stringify(u)); }
@@ -1956,6 +1957,7 @@ function onLogin() {
 
 // Check if already logged in on load
 function checkAuth() {
+  if (isAdminMode) return; // Don't override admin nav
   if (currentUser) {
     // Only update UI, don't navigate
     const navBtn = document.getElementById('tab-login');
@@ -2186,6 +2188,7 @@ function confirmRegSec(secId, labelClass, groupSelector, btn) {
 
 
 function openAdminPanel() {
+  isAdminMode = true;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-admin').classList.add('active');
@@ -2201,15 +2204,24 @@ function openAdminPanel() {
       e.stopPropagation();
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
-        // Reset nav button completely
+        isAdminMode = false;
         navBtn.style.background = '';
         navBtn.style.color = '';
         navBtn.style.borderColor = '';
         navBtn.classList.remove('logged');
         navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
         navBtn.onclick = handleNavLogin;
+        // Don't restore user session - just go to landing
         navTo('landing', null);
         document.getElementById('tab-home').classList.add('active');
+        // Override checkAuth result after navigation
+        setTimeout(() => {
+          if (currentUser) {
+            navBtn.innerHTML = '<span>👤 ' + currentUser.name.split(' ')[0] + '</span>';
+            navBtn.classList.add('logged');
+            navBtn.onclick = handleNavLogin;
+          }
+        }, 50);
       }
     };
   }
@@ -2973,6 +2985,7 @@ function saveEditSpeler() {
 const ADMIN_HASH = '7b592f73b25c5f17398fc45741f7476a071ff1ee9433875cfa2b53ab657c58c9';
 
 function openAdminPanel() {
+  isAdminMode = true;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-admin').classList.add('active');
@@ -2988,15 +3001,24 @@ function openAdminPanel() {
       e.stopPropagation();
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
-        // Reset nav button completely
+        isAdminMode = false;
         navBtn.style.background = '';
         navBtn.style.color = '';
         navBtn.style.borderColor = '';
         navBtn.classList.remove('logged');
         navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
         navBtn.onclick = handleNavLogin;
+        // Don't restore user session - just go to landing
         navTo('landing', null);
         document.getElementById('tab-home').classList.add('active');
+        // Override checkAuth result after navigation
+        setTimeout(() => {
+          if (currentUser) {
+            navBtn.innerHTML = '<span>👤 ' + currentUser.name.split(' ')[0] + '</span>';
+            navBtn.classList.add('logged');
+            navBtn.onclick = handleNavLogin;
+          }
+        }, 50);
       }
     };
   }
