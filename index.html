@@ -2068,7 +2068,6 @@ async function cancelRes(id) {
 
 function goToLogin() {
   clearTimeout(navTimeout);
-  // Reset all selections so going back to booking starts fresh
   selCoach = null;
   selectedService = null;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2076,8 +2075,17 @@ function goToLogin() {
   document.getElementById('page-login').classList.add('active');
   const loginTab = document.getElementById('tab-login');
   if (loginTab) loginTab.classList.add('active');
-  // Update nav button text if not logged in
-  if (!currentUser && loginTab) loginTab.textContent = 'Inloggen';
+  
+  // Show correct view based on currentUser
+  if (currentUser) {
+    document.getElementById('login-guest-view').style.display = 'none';
+    document.getElementById('login-user-view').style.display = '';
+    onLogin();
+  } else {
+    document.getElementById('login-guest-view').style.display = '';
+    document.getElementById('login-user-view').style.display = 'none';
+    if (loginTab) loginTab.textContent = 'Inloggen';
+  }
 }
 
 
