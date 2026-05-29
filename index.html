@@ -1159,6 +1159,10 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
     </div>
     <p id="admin-pass-error" style="display:none;color:#ff4444;font-size:13px;margin-bottom:12px;">Onjuist wachtwoord</p>
     <button onclick="checkAdminPass()" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;cursor:pointer;margin-bottom:10px;">INLOGGEN</button>
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 0;">
+      <input type="checkbox" id="admin-remember" style="accent-color:var(--orange);width:15px;height:15px;">
+      <label for="admin-remember" style="font-size:13px;color:#888;cursor:pointer;">Onthoud mij op dit apparaat</label>
+    </div>
     <button onclick="closeAdminPass()" style="width:100%;padding:12px;background:transparent;border:1px solid #ddd;border-radius:12px;color:#888;font-size:14px;cursor:pointer;">Annuleren</button>
   </div>
 </div>
@@ -1644,13 +1648,14 @@ function renderAdmin(){
   rl.innerHTML=!reservations.length?`<div class="empty">${t('nores')}</div>`:[...reservations].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(r=>{
     const [y,m,d]=r.date?r.date.split('-'):['','',''];
     const badge=r.status==='confirmed'?`<span class="badge badge-o">${t('conf')}</span>`:r.status==='rejected'?`<span class="badge badge-r">${t('rej')}</span>`:r.status==='cancelled'?`<span class="badge badge-c">${lang==='nl'?'Geannuleerd':'Cancelled'}</span>`:`<span class="badge badge-y">${t('pend')}</span>`;
+    const rid=Number(r.id);
     const acts=r.status==='pending'
-        ?`<button class="btn-ok" onclick="event.stopPropagation();approveRes(${r.id})">${t('approve')}</button><button class="btn-no" onclick="event.stopPropagation();rejectRes(${r.id})">${t('reject')}</button>`
+        ?`<button class="btn-ok" onclick="event.stopPropagation();approveRes(${rid})">${t('approve')}</button><button class="btn-no" onclick="event.stopPropagation();rejectRes(${rid})">${t('reject')}</button>`
         :r.status==='confirmed'
-        ?`<button class="btn-no" onclick="event.stopPropagation();cancelRes(${r.id})">${t('cancel')}</button>`
-        :'';
-    const deleteBtn = `<button onclick="event.stopPropagation();deleteRes(${r.id})" style="padding:5px 10px;background:none;border:1px solid #ffcccc;border-radius:8px;color:#ff4444;font-size:12px;cursor:pointer;">🗑️</button>`;
-    const wa=r.phone?`<button class="btn-wa" onclick="event.stopPropagation();sendWa(${r.id})">📱 WA</button>`:'';
+        ?`<button class="btn-no" onclick="event.stopPropagation();cancelRes(${rid})">${t('cancel')}</button>`
+        :r.status==='cancelled'?'':'';
+    const deleteBtn = `<button onclick="event.stopPropagation();deleteRes(${rid})" style="padding:5px 10px;background:none;border:1px solid #ffcccc;border-radius:8px;color:#ff4444;font-size:12px;cursor:pointer;">🗑️</button>`;
+    const wa=r.phone?`<button class="btn-wa" onclick="event.stopPropagation();sendWa(${rid})">📱 WA</button>`:'';
     return `<div class="res-row" onclick="this.classList.toggle('expanded')">
       <div class="res-row-header">
         ${badge}
@@ -2124,7 +2129,17 @@ function confirmRegSec(secId, labelClass, groupSelector, btn) {
 }
 
 
+function openAdminPanel() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-admin').classList.add('active');
+  renderAdmin();
+}
+
 function openAdminPass() {
+  // Check if already remembered
+  const saved = localStorage.getItem('ht_admin_token');
+  if (saved === ADMIN_HASH) { openAdminPanel(); return; }
   document.getElementById('admin-pass-input').value = '';
   document.getElementById('admin-pass-err').classList.remove('show');
   document.getElementById('admin-pass-ov').style.display='flex';
@@ -2877,7 +2892,17 @@ function saveEditSpeler() {
 
 const ADMIN_HASH = '7b592f73b25c5f17398fc45741f7476a071ff1ee9433875cfa2b53ab657c58c9';
 
+function openAdminPanel() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-admin').classList.add('active');
+  renderAdmin();
+}
+
 function openAdminPass() {
+  // Check if already remembered
+  const saved = localStorage.getItem('ht_admin_token');
+  if (saved === ADMIN_HASH) { openAdminPanel(); return; }
   document.getElementById('admin-pass-ov').style.display='flex';
   setTimeout(() => document.getElementById('admin-pass-input').focus(), 100);
 }
@@ -2893,11 +2918,10 @@ function checkAdminPass() {
   crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw)).then(buf => {
     const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     if (hash === ADMIN_HASH) {
+      const remember = document.getElementById('admin-remember').checked;
+      if (remember) localStorage.setItem('ht_admin_token', hash);
       closeAdminPass();
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('page-admin').classList.add('active');
-      renderAdmin();
+      openAdminPanel();
     } else {
       document.getElementById('admin-pass-error').style.display = 'block';
       document.getElementById('admin-pass-input').value = '';
