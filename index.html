@@ -2204,26 +2204,29 @@ function openAdminPanel() {
       e.stopPropagation();
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
-        isAdminMode = false;
-        currentUser = null;
         localStorage.removeItem('ht_user');
+        currentUser = null;
+        isAdminMode = false;
         navBtn.style.background = '';
         navBtn.style.color = '';
         navBtn.style.borderColor = '';
         navBtn.classList.remove('logged');
         navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
         navBtn.onclick = handleNavLogin;
-        // Don't restore user session - just go to landing
         navTo('landing', null);
         document.getElementById('tab-home').classList.add('active');
-        // Override checkAuth result after navigation
+        // Force correct button after any checkAuth calls
         setTimeout(() => {
-          if (currentUser) {
-            navBtn.innerHTML = '<span>👤 ' + currentUser.name.split(' ')[0] + '</span>';
-            navBtn.classList.add('logged');
-            navBtn.onclick = handleNavLogin;
+          const nb = document.getElementById('tab-login');
+          if (nb && !currentUser) {
+            nb.innerHTML = lang==='nl'?'Inloggen':'Login';
+            nb.classList.remove('logged');
+            nb.style.background = '';
+            nb.style.color = '';
+            nb.style.borderColor = '';
+            nb.onclick = handleNavLogin;
           }
-        }, 50);
+        }, 200);
       }
     };
   }
@@ -3003,26 +3006,29 @@ function openAdminPanel() {
       e.stopPropagation();
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
-        isAdminMode = false;
-        currentUser = null;
         localStorage.removeItem('ht_user');
+        currentUser = null;
+        isAdminMode = false;
         navBtn.style.background = '';
         navBtn.style.color = '';
         navBtn.style.borderColor = '';
         navBtn.classList.remove('logged');
         navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
         navBtn.onclick = handleNavLogin;
-        // Don't restore user session - just go to landing
         navTo('landing', null);
         document.getElementById('tab-home').classList.add('active');
-        // Override checkAuth result after navigation
+        // Force correct button after any checkAuth calls
         setTimeout(() => {
-          if (currentUser) {
-            navBtn.innerHTML = '<span>👤 ' + currentUser.name.split(' ')[0] + '</span>';
-            navBtn.classList.add('logged');
-            navBtn.onclick = handleNavLogin;
+          const nb = document.getElementById('tab-login');
+          if (nb && !currentUser) {
+            nb.innerHTML = lang==='nl'?'Inloggen':'Login';
+            nb.classList.remove('logged');
+            nb.style.background = '';
+            nb.style.color = '';
+            nb.style.borderColor = '';
+            nb.onclick = handleNavLogin;
           }
-        }, 50);
+        }, 200);
       }
     };
   }
