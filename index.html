@@ -1967,10 +1967,9 @@ async function cancelRes(id) {
   if(!confirm("Wil je deze reservering annuleren?")) return;
   const r = reservations.find(r => r.id === id);
   if (!r) return;
-  
   r.status = 'cancelled';
   sendCancelEmail(r);
-  try { await supa.from('reservations').update({status:'cancelled'}).eq('id', r.id); } catch(e) {}
+  await sbSaveReservation(r);
   const s = slots.find(s => s.id === r.slotId);
   if (s) { s.booked = false; await sbSaveSlot(s); }
   save(); renderAdmin(); renderCal();
