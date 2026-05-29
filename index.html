@@ -1518,6 +1518,35 @@ function submitBooking() {
     <div class="thanks-card-row"><span class="thanks-card-label">Prijs</span><span class="thanks-card-val">${selectedService?servicePrices[selectedService]:''}</span></div>
   `;
   navTo('thanks', null);
+
+  // Show training count on thanks page
+  setTimeout(() => {
+    const tnEl = document.getElementById('training-number-info');
+    if (tnEl) {
+      const playerName = (res.name||'').toLowerCase();
+      const playerEmail = (res.email||'').toLowerCase();
+      const cnt = reservations.filter(r =>
+        r.status === 'confirmed' &&
+        ((r.name&&r.name.toLowerCase()===playerName)||(r.email&&r.email.toLowerCase()===playerEmail))
+      ).length;
+      const isPackage = res.service && (res.service.includes('5 Train')||res.service.includes('5x'));
+      if (cnt > 1 || isPackage) {
+        const total = isPackage ? 5 : Math.max(cnt, 5);
+        let dots = '';
+        for (let i = 0; i < total; i++) {
+          dots += `<div style="width:14px;height:14px;border-radius:50%;background:${i<cnt?'#E8570A':'#e0e0e8'};display:inline-block;margin:0 3px;"></div>`;
+        }
+        tnEl.innerHTML = `<div style="margin-top:16px;padding:16px;background:#fff8f5;border-radius:12px;border:1px solid rgba(232,87,10,.2);text-align:center;">
+          <div style="font-size:13px;font-weight:600;color:#E8570A;margin-bottom:8px;">🏆 Training ${cnt}${isPackage?' van 5':''}</div>
+          <div>${dots}</div>
+          ${isPackage&&cnt===5?'<div style="font-size:12px;color:#25a244;margin-top:8px;font-weight:600;">✅ Pakket voltooid!</div>':''}
+        </div>`;
+        tnEl.style.display = 'block';
+      } else {
+        tnEl.style.display = 'none';
+      }
+    }
+  }, 300);
   ['f-name','f-parent','f-parent-name','f-phone','f-email','f-note'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('f-age').value='';
   selDate=null;selSlot=null;
@@ -2172,7 +2201,13 @@ function openAdminPanel() {
       e.stopPropagation();
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
-        checkAuth(); // restore user display or login button
+        // Reset nav button completely
+        navBtn.style.background = '';
+        navBtn.style.color = '';
+        navBtn.style.borderColor = '';
+        navBtn.classList.remove('logged');
+        navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
+        navBtn.onclick = handleNavLogin;
         navTo('landing', null);
         document.getElementById('tab-home').classList.add('active');
       }
@@ -2953,7 +2988,13 @@ function openAdminPanel() {
       e.stopPropagation();
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
-        checkAuth(); // restore user display or login button
+        // Reset nav button completely
+        navBtn.style.background = '';
+        navBtn.style.color = '';
+        navBtn.style.borderColor = '';
+        navBtn.classList.remove('logged');
+        navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
+        navBtn.onclick = handleNavLogin;
         navTo('landing', null);
         document.getElementById('tab-home').classList.add('active');
       }
