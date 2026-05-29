@@ -1411,7 +1411,7 @@ function renderCal() {
   for(let day=1;day<=dim;day++){
     const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const isPast=new Date(ds)<new Date(today.toDateString());
-    const hasS=slots.some(s=>s.date===ds&&!s.booked&&(s.coach?.toLowerCase()===(selCoach||'').toLowerCase()||s.coach==='both'||s.coach==='beide'||!s.coach));
+    const hasS=slots.some(s=>s.date===ds&&!s.booked&&(!selCoach||s.coach?.toLowerCase()===selCoach.toLowerCase()||s.coach==='both'||s.coach==='beide'||!s.coach));
     const todayLocal=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     const isToday=ds===todayLocal;
     const d=document.createElement('div');
@@ -1437,7 +1437,7 @@ function renderSlots(ds) {
   const sec=document.getElementById('slots-sec');
   const grid=document.getElementById('slots-grid');
   const lbl=document.getElementById('slots-lbl');
-  const dayS=slots.filter(s=>s.date===ds&&(s.coach?.toLowerCase()===(selCoach||'').toLowerCase()||s.coach==='both'||s.coach==='beide'||!s.coach)).sort((a,b)=>a.start.localeCompare(b.start));
+  const dayS=slots.filter(s=>s.date===ds&&(!selCoach||s.coach?.toLowerCase()===selCoach.toLowerCase()||s.coach==='both'||s.coach==='beide'||!s.coach)).sort((a,b)=>a.start.localeCompare(b.start));
   if(!dayS.length){sec.style.display='none';return;}
   const d=new Date(ds+'T00:00:00');
   lbl.textContent=`${t('days')[d.getDay()]} ${d.getDate()} ${t('mshort')[d.getMonth()]}`;
