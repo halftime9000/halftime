@@ -2205,6 +2205,8 @@ function openAdminPanel() {
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
         isAdminMode = false;
+        currentUser = null;
+        localStorage.removeItem('ht_user');
         navBtn.style.background = '';
         navBtn.style.color = '';
         navBtn.style.borderColor = '';
@@ -3002,6 +3004,8 @@ function openAdminPanel() {
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
         isAdminMode = false;
+        currentUser = null;
+        localStorage.removeItem('ht_user');
         navBtn.style.background = '';
         navBtn.style.color = '';
         navBtn.style.borderColor = '';
