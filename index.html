@@ -2148,17 +2148,19 @@ function openAdminPanel() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-admin').classList.add('active');
-  // Show admin indicator in nav
+  // Show admin indicator in nav - override any user display
   const navBtn = document.getElementById('tab-login');
   if (navBtn) { 
     navBtn.innerHTML = '<span>🔐 Admin</span>'; 
+    navBtn.style.background = 'var(--orange)';
+    navBtn.style.color = '#fff';
+    navBtn.style.borderColor = 'var(--orange)';
     navBtn.classList.add('logged');
-    navBtn.onclick = function() { 
+    navBtn.onclick = function(e) {
+      e.stopPropagation();
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
-        navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
-        navBtn.classList.remove('logged');
-        navBtn.onclick = handleNavLogin;
+        checkAuth(); // restore user display or login button
         navTo('landing', null);
         document.getElementById('tab-home').classList.add('active');
       }
@@ -2927,17 +2929,19 @@ function openAdminPanel() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-admin').classList.add('active');
-  // Show admin indicator in nav
+  // Show admin indicator in nav - override any user display
   const navBtn = document.getElementById('tab-login');
   if (navBtn) { 
     navBtn.innerHTML = '<span>🔐 Admin</span>'; 
+    navBtn.style.background = 'var(--orange)';
+    navBtn.style.color = '#fff';
+    navBtn.style.borderColor = 'var(--orange)';
     navBtn.classList.add('logged');
-    navBtn.onclick = function() { 
+    navBtn.onclick = function(e) {
+      e.stopPropagation();
       if(confirm('Admin uitloggen?')) {
         localStorage.removeItem('ht_admin_token');
-        navBtn.innerHTML = lang==='nl'?'Inloggen':'Login';
-        navBtn.classList.remove('logged');
-        navBtn.onclick = handleNavLogin;
+        checkAuth(); // restore user display or login button
         navTo('landing', null);
         document.getElementById('tab-home').classList.add('active');
       }
