@@ -657,6 +657,15 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   .betaling-opties { gap:4px; }
 }
 
+
+  .res-row { background:#fff; border:1px solid #e8e8e4; border-radius:10px; margin-bottom:6px; overflow:hidden; cursor:pointer; transition:all .15s; }
+  .res-row:hover { border-color:#ddd; }
+  .res-row-header { display:flex; align-items:center; gap:10px; padding:10px 14px; }
+  .res-row-body { display:none; padding:0 14px 12px; border-top:1px solid #f0f0f0; }
+  .res-row.expanded .res-row-body { display:block; }
+  .res-row-chevron { margin-left:auto; color:#aaa; font-size:12px; transition:transform .15s; }
+  .res-row.expanded .res-row-chevron { transform:rotate(180deg); }
+
 </style>
 </head>
 <body>
@@ -1633,16 +1642,33 @@ function renderAdmin(){
   }
   const rl=document.getElementById('admin-res');
   rl.innerHTML=!reservations.length?`<div class="empty">${t('nores')}</div>`:[...reservations].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(r=>{
-    const [y,m,d]=r.date.split('-');
+    const [y,m,d]=r.date?r.date.split('-'):['','',''];
     const badge=r.status==='confirmed'?`<span class="badge badge-o">${t('conf')}</span>`:r.status==='rejected'?`<span class="badge badge-r">${t('rej')}</span>`:r.status==='cancelled'?`<span class="badge badge-c">${lang==='nl'?'Geannuleerd':'Cancelled'}</span>`:`<span class="badge badge-y">${t('pend')}</span>`;
     const acts=r.status==='pending'
-        ?`<button class="btn-ok" onclick="approveRes(${r.id})">${t('approve')}</button><button class="btn-no" onclick="rejectRes(${r.id})">${t('reject')}</button>`
+        ?`<button class="btn-ok" onclick="event.stopPropagation();approveRes(${r.id})">${t('approve')}</button><button class="btn-no" onclick="event.stopPropagation();rejectRes(${r.id})">${t('reject')}</button>`
         :r.status==='confirmed'
-        ?`<button class="btn-no" onclick="cancelRes(${r.id})">${t('cancel')}</button>`
+        ?`<button class="btn-no" onclick="event.stopPropagation();cancelRes(${r.id})">${t('cancel')}</button>`
         :'';
-    const deleteBtn = `<button onclick="deleteRes(${r.id})" style="padding:5px 10px;background:none;border:1px solid #ffcccc;border-radius:8px;color:#ff4444;font-size:12px;cursor:pointer;" title="Verwijderen">🗑️</button>`;
-    const wa=r.phone?`<button class="btn-wa" onclick="sendWa(${r.id})">📱 WA</button>`:'';
-    return `<div class="res-row"><div style="flex:1"><div class="res-name">${r.name} <span style="color:var(--muted);font-size:11px">${r.age}</span></div><div class="res-det">📅 ${d}/${m}/${y} · ${r.start}–${r.end} · ${r.type}${r.coach?' · '+r.coach:''}</div><div class="res-det">${r.service?'🏷️ '+r.service+(r.price?' · '+r.price:''):''}</div><div class="res-det">${r.phone?'📱 '+r.phone:''} ${r.email?'✉️ '+r.email:''}</div><div class="res-det" style="margin-top:3px">${r.positions&&r.positions.length?'🔢 '+r.positions.join(', '):''}</div><div class="res-det">${r.sterke&&r.sterke.length?'💪 '+r.sterke.join(', '):''}</div><div class="res-det">${r.werk&&r.werk.length?'🎯 '+r.werk.join(', '):''}</div></div><div class="res-acts">${badge}${acts}${wa}${deleteBtn}</div></div>`;
+    const deleteBtn = `<button onclick="event.stopPropagation();deleteRes(${r.id})" style="padding:5px 10px;background:none;border:1px solid #ffcccc;border-radius:8px;color:#ff4444;font-size:12px;cursor:pointer;">🗑️</button>`;
+    const wa=r.phone?`<button class="btn-wa" onclick="event.stopPropagation();sendWa(${r.id})">📱 WA</button>`:'';
+    return `<div class="res-row" onclick="this.classList.toggle('expanded')">
+      <div class="res-row-header">
+        ${badge}
+        <div style="font-weight:600;color:#000033;font-size:14px;">${r.name||'—'} <span style="color:#888;font-size:12px;font-weight:400;">${r.age||''}</span></div>
+        <div style="color:#888;font-size:12px;margin-left:4px;">${d?'📅 '+d+'/'+m+'/'+y:''} ${r.start?'· '+r.start:''} ${r.coach?'· '+r.coach:''}</div>
+        <div class="res-row-chevron">▼</div>
+      </div>
+      <div class="res-row-body">
+        ${r.service?`<div class="res-det">🏷️ ${r.service}${r.price?' · '+r.price:''}</div>`:''}
+        ${r.phone?`<div class="res-det">📱 ${r.phone}</div>`:''}
+        ${r.email?`<div class="res-det">✉️ ${r.email}</div>`:''}
+        ${r.positions&&r.positions.length?`<div class="res-det">🔢 ${r.positions.join(', ')}</div>`:''}
+        ${r.sterke&&r.sterke.length?`<div class="res-det">💪 ${r.sterke.join(', ')}</div>`:''}
+        ${r.werk&&r.werk.length?`<div class="res-det">🎯 ${r.werk.join(', ')}</div>`:''}
+        ${r.note?`<div class="res-det">💬 ${r.note}</div>`:''}
+        <div class="res-acts" style="margin-top:10px;">${acts}${wa}${deleteBtn}</div>
+      </div>
+    </div>`;
   }).join('');
 
   // Render spelers and betaling
