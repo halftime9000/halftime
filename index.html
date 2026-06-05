@@ -1730,39 +1730,75 @@ function renderAdmin(){
     }
   }
   const rl=document.getElementById('admin-res');
-  rl.innerHTML=!reservations.length?`<div class="empty">${t('nores')}</div>`:[...reservations].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(r=>{
-    const [y,m,d]=r.date?r.date.split('-'):['','',''];
-    const badge=r.status==='confirmed'?`<span class="badge badge-o">${t('conf')}</span>`:r.status==='rejected'?`<span class="badge badge-r">${t('rej')}</span>`:r.status==='cancelled'?`<span class="badge badge-c">${lang==='nl'?'Geannuleerd':'Cancelled'}</span>`:`<span class="badge badge-y">${t('pend')}</span>`;
-    const rid=Number(r.id);
-    const acts=r.status==='pending'
-        ?`<button class="btn-ok" onclick="event.stopPropagation();approveRes(${rid})">${t('approve')}</button><button class="btn-no" onclick="event.stopPropagation();rejectRes(${rid})">${t('reject')}</button>`
-        :r.status==='confirmed'
-        ?`<button class="btn-no" onclick="event.stopPropagation();cancelRes(${rid})">${t('cancel')}</button>`
-        :r.status==='cancelled'?`<button class="btn-ok" onclick="event.stopPropagation();restoreRes(${rid})">↩ Herstel</button>`:''
-    const deleteBtn = `<button onclick="event.stopPropagation();deleteRes(${rid})" style="padding:5px 10px;background:none;border:1px solid #ffcccc;border-radius:8px;color:#ff4444;font-size:12px;cursor:pointer;">🗑️</button>`;
-    const wa=r.phone?`<button class="btn-wa" onclick="event.stopPropagation();sendWa(${rid})">📱 WA</button>`:'';
-    return `<div class="res-row" onclick="this.classList.toggle('expanded')">
-      <div class="res-row-header">
-        ${badge}
-        <div style="font-weight:600;color:#000033;font-size:14px;">${r.name||'—'} <span style="color:#888;font-size:12px;font-weight:400;">${r.age||''}</span></div>
-        <div style="color:#888;font-size:12px;margin-left:4px;">${d?'📅 '+d+'/'+m+'/'+y:''} ${r.start?'· '+r.start:''} ${r.coach?'· '+r.coach:''}</div>
-        ${(()=>{ const cnt=getTrainingCount(r.name,r.email); const pkg=getPackageSize(r.service); const isNew=r.date>='2026-06-05'; return pkg===5&&isNew?renderProgressDots(cnt,5):''; })()}
-        <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
-          ${acts}${wa}${deleteBtn}
-          <span class="res-row-chevron">▼</span>
+  const todayDate = new Date().toISOString().split('T')[0];
+  
+  // Apply filter
+  let filtered = [...reservations].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if (resFilter !== 'all') filtered = filtered.filter(r => r.status === resFilter);
+  
+  if (!filtered.length) {
+    rl.innerHTML = `<div class="empty">${t('nores')}</div>`;
+  } else {
+    // Group by date
+    const grouped = {};
+    filtered.forEach(r => {
+      const key = r.date || 'Onbekend';
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(r);
+    });
+
+    rl.innerHTML = Object.entries(grouped).map(([date, list]) => {
+      const [y,m,d] = date !== 'Onbekend' ? date.split('-') : ['','',''];
+      const dayNames = ['zo','ma','di','wo','do','vr','za'];
+      const dayName = date !== 'Onbekend' ? dayNames[new Date(date).getDay()] : '';
+      const isPastDay = date < todayDate;
+
+      const rows = list.map(r => {
+        const badge = r.status==='confirmed'?`<span class="badge badge-o">${t('conf')}</span>`:r.status==='rejected'?`<span class="badge badge-r">${t('rej')}</span>`:r.status==='cancelled'?`<span class="badge badge-c">Geannuleerd</span>`:`<span class="badge badge-y">${t('pend')}</span>`;
+        const rid = Number(r.id);
+        // No cancel button for past reservations
+        const acts = r.status==='pending'
+          ? `<button class="btn-ok" onclick="event.stopPropagation();approveRes(${rid})">${t('approve')}</button><button class="btn-no" onclick="event.stopPropagation();rejectRes(${rid})">${t('reject')}</button>`
+          : r.status==='confirmed' && !isPastDay
+          ? `<button class="btn-no" onclick="event.stopPropagation();cancelRes(${rid})">${t('cancel')}</button>`
+          : r.status==='cancelled'
+          ? `<button class="btn-ok" onclick="event.stopPropagation();restoreRes(${rid})">↩ Herstel</button>`
+          : '';
+        const deleteBtn = `<button onclick="event.stopPropagation();deleteRes(${rid})" style="padding:4px 8px;background:none;border:1px solid #ffcccc;border-radius:6px;color:#ff4444;font-size:11px;cursor:pointer;">🗑️</button>`;
+        const wa = r.phone ? `<button class="btn-wa" onclick="event.stopPropagation();sendWa(${rid})">📱 WA</button>` : '';
+        const progress = (()=>{ const cnt=getTrainingCount(r.name,r.email); const pkg=getPackageSize(r.service); const isNew=r.date>='2026-06-05'; return pkg===5&&isNew?renderProgressDots(cnt,5):''; })();
+
+        return `<div class="res-row" onclick="this.classList.toggle('expanded')">
+          <div class="res-row-header">
+            ${badge}
+            <div style="font-weight:600;color:#000033;font-size:13px;">${r.name||'—'} <span style="color:#888;font-size:11px;font-weight:400;">${r.age||''}</span></div>
+            <div style="color:#888;font-size:12px;">${r.start?'⏰ '+r.start:''} ${r.coach?'· '+r.coach:''}</div>
+            ${progress}
+            <div style="margin-left:auto;display:flex;gap:4px;align-items:center;">
+              ${acts}${wa}${deleteBtn}
+              <span class="res-row-chevron">▼</span>
+            </div>
+          </div>
+          <div class="res-row-body">
+            ${r.service?`<div class="res-det">🏷️ ${r.service}${r.price?' · '+r.price:''}</div>`:''}
+            ${r.phone?`<div class="res-det">📱 ${r.phone}</div>`:''}
+            ${r.email?`<div class="res-det">✉️ ${r.email}</div>`:''}
+            ${r.positions&&r.positions.length?`<div class="res-det">🔢 ${r.positions.join(', ')}</div>`:''}
+            ${r.sterke&&r.sterke.length?`<div class="res-det">💪 ${r.sterke.join(', ')}</div>`:''}
+            ${r.werk&&r.werk.length?`<div class="res-det">🎯 ${r.werk.join(', ')}</div>`:''}
+            ${r.note?`<div class="res-det">💬 ${r.note}</div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+
+      return `<div style="margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:#000033;text-transform:uppercase;letter-spacing:.5px;padding:6px 0 4px;border-bottom:1px solid #eee;margin-bottom:6px;${isPastDay?'opacity:.6':''}">
+          ${dayName} ${d?d+'/'+m+'/'+y:'Onbekend'} ${isPastDay?'<span style="color:#aaa;font-size:10px;">(voorbij)</span>':''}
         </div>
-      </div>
-      <div class="res-row-body">
-        ${r.service?`<div class="res-det">🏷️ ${r.service}${r.price?' · '+r.price:''}</div>`:''}
-        ${r.phone?`<div class="res-det">📱 ${r.phone}</div>`:''}
-        ${r.email?`<div class="res-det">✉️ ${r.email}</div>`:''}
-        ${r.positions&&r.positions.length?`<div class="res-det">🔢 ${r.positions.join(', ')}</div>`:''}
-        ${r.sterke&&r.sterke.length?`<div class="res-det">💪 ${r.sterke.join(', ')}</div>`:''}
-        ${r.werk&&r.werk.length?`<div class="res-det">🎯 ${r.werk.join(', ')}</div>`:''}
-        ${r.note?`<div class="res-det">💬 ${r.note}</div>`:''}
-      </div>
-    </div>`;
-  }).join('');
+        ${rows}
+      </div>`;
+    }).join('');
+  }
 
   // Render spelers and betaling
   renderSpelers();
