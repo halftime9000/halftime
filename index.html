@@ -1151,6 +1151,10 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
         <input class="speler-input" id="edit-sp-werk-extra" placeholder="Typ extra werkpunt..." style="width:100%;margin-top:6px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditExtraWerkpunt();}">
         <div id="edit-sp-werk-extra-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
       </div>
+      <div style="margin-top:12px;">
+        <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">Opmerking</label>
+        <textarea class="speler-input" id="edit-sp-opmerking" placeholder="Opmerking..." style="width:100%;margin-top:6px;height:70px;resize:none;"></textarea>
+      </div>
       <button class="btn-add" onclick="saveEditSpeler()" style="margin-top:14px;">💾 OPSLAAN</button>
     </div>
   </div>
@@ -1199,6 +1203,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
       <option value="Core Stability">Core Stability - &euro;65</option>
       <option value="5 Trainingen Core Stability">5 Trainingen Core Stability - &euro;295</option>
     </select>
+    <textarea class="speler-input" id="quick-opmerking" placeholder="Opmerking (optioneel)" style="width:100%;margin-bottom:16px;height:70px;resize:none;"></textarea>
     <button class="btn-add" onclick="saveQuickBooking()" style="width:100%;">+ BOEKING TOEVOEGEN</button>
   </div>
 </div>
@@ -2667,6 +2672,7 @@ function renderBetaling() {
             <td style="padding:8px;color:var(--orange);font-weight:600;">${r.price||'—'}</td>
             <td style="padding:8px;">${dot} ${methodLabel[m2]||m2}</td>
             <td style="padding:8px;font-weight:600;color:#000033;">${bedrag ? '€'+bedrag : '—'}</td>
+            <td style="padding:8px;">${(()=>{ const cnt=getTrainingCount(r.name,r.email); const pkg=getPackageSize(r.service); return pkg===5||cnt>1?renderProgressDots(cnt,Math.max(cnt,5)):''; })()}</td>
             <td style="padding:8px;">
 <div style="display:flex;gap:4px;">
                 <button onclick="unlockBetaling(${r.id})" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;color:#888;" title="Bewerken">✏️</button>
@@ -2939,6 +2945,7 @@ function editSpeler(id) {
   document.getElementById('edit-sp-telefoon').value = s.telefoon || '';
   document.getElementById('edit-sp-email').value = s.email || '';
   document.getElementById('edit-sp-club').value = s.club || '';
+  document.getElementById('edit-sp-opmerking').value = s.opmerking || '';
 
   // Reset werkpunten chips
   document.querySelectorAll('#edit-sp-werk-group .re-chip').forEach(c => {
@@ -2985,6 +2992,7 @@ function saveEditSpeler() {
   const telefoon = document.getElementById('edit-sp-telefoon').value.trim();
   const email = document.getElementById('edit-sp-email').value.trim();
   const club = document.getElementById('edit-sp-club').value.trim();
+  const opmerking = document.getElementById('edit-sp-opmerking').value.trim();
   const werk = [
     ...Array.from(document.querySelectorAll('#edit-sp-werk-group .re-chip.re-sel')).map(c => c.dataset.val),
     ...editExtraWerkpunten
@@ -3001,7 +3009,7 @@ function saveEditSpeler() {
     existing.werk = werk;
   } else {
     // fromRes - convert to manual speler
-    const newSpeler = { id: Date.now(), naam, ouder, jaar, telefoon, email, club, werk };
+    const newSpeler = { id: Date.now(), naam, ouder, jaar, telefoon, email, club, werk, opmerking };
     spelers.push(newSpeler);
     // Add original res_id to hidden list so it doesn't duplicate
     if (!hiddenSpelers.includes(String(id))) hiddenSpelers.push(String(id));
@@ -3131,13 +3139,14 @@ async function saveQuickBooking() {
   const service = document.getElementById('quick-service').value;
   const ouder = document.getElementById('quick-ouder').value.trim();
   const telefoon = document.getElementById('quick-telefoon').value.trim();
+  const opmerking = document.getElementById('quick-opmerking').value.trim();
   const prices = {
     'Prive Training 1on1':'€65','5 Trainingen':'€295',
     '2on1':'€70','3on1':'€75','4on1':'€80',
     'Core Stability':'€65','5 Trainingen Core Stability':'€295'
   };
   const res = {
-    id: Date.now(), name: naam, parent: ouder, phone: telefoon, email: '', age: '',
+    id: Date.now(), name: naam, parent: ouder, phone: telefoon, email: '', age: '', note: opmerking,
     date: quickSlot.date, start: quickSlot.start, end: quickSlot.end,
     type: quickSlot.type || '', coach: quickSlot.coach || '', service: service,
     price: prices[service] || '', slotId: quickSlot.id, status: 'confirmed',
