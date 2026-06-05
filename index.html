@@ -1962,6 +1962,7 @@ async function doRegister() {
   const re_pos = Array.from(document.querySelectorAll('#re-pos-sec .re-chip.re-sel')).map(c=>c.dataset.val);
   const re_sterke = Array.from(document.querySelectorAll('#re-sterke-sec .re-chip.re-sel')).map(c=>c.dataset.val);
   const re_werk = Array.from(document.querySelectorAll('#re-werk-sec .re-chip.re-sel')).map(c=>c.dataset.val);
+  const re_club = document.getElementById('re-club')?.value.trim() || '';
   const err = document.getElementById('re-err');
   const pass2 = document.getElementById('re-pass2').value;
   if (!name || !parent || !age || !phone || !email || !pass) { err.textContent = 'Vul alle verplichte velden in (✦)'; err.classList.add('show'); return; }
@@ -3368,6 +3369,7 @@ sbLoadData().then(() => { loadHistorischeBetalingen(); renderAdmin(); if(documen
             <option>U15+</option>
           </select>
         </div>
+        <div class="login-fg"><label>Club <span style="color:#aaa;font-size:10px;font-weight:400;">(optioneel)</span></label><input type="text" id="re-club" placeholder="Naam van de club"></div>
         <div class="login-fg">
           <label style="display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Favoriete positie <span style="color:var(--orange)">✦</span></label>
           <div onclick="toggleRegSec('re-pos-sec',this)" style="width:100%;padding:10px 14px;background:#fff;border:1px solid #ddd;border-radius:10px;color:#aaa;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;">
@@ -3393,7 +3395,7 @@ sbLoadData().then(() => { loadHistorischeBetalingen(); renderAdmin(); if(documen
         </div>
 
         <div class="login-fg">
-          <label style="display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Sterke punten <span style="color:var(--orange)">✦</span></label>
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Sterke punten <span style="color:#aaa;font-size:10px;font-weight:400;">(optioneel)</span></label>
           <div onclick="toggleRegSec('re-sterke-sec',this)" style="width:100%;padding:10px 14px;background:#fff;border:1px solid #ddd;border-radius:10px;color:#aaa;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;">
             <span class="re-sterke-label">Kies één of meerdere</span>
             <span class="re-arrow" style="font-size:11px;color:var(--orange);transition:transform .2s;">▼</span>
