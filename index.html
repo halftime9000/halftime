@@ -2553,11 +2553,18 @@ function renderSpelers() {
       <td style="padding:7px 8px;width:32px;">
         <input type="checkbox" class="speler-checkbox" data-id="${s.id}" data-fromres="${s.fromRes?'1':'0'}" style="width:15px;height:15px;accent-color:var(--orange);cursor:pointer;">
       </td>
-      <td style="padding:7px 8px;font-weight:600;color:#000033;white-space:nowrap;">${s.naam}</td>
-      <td style="padding:7px 8px;color:#555;">${s.ouder||'—'}</td>
-      <td style="padding:7px 8px;color:#555;white-space:nowrap;">${s.telefoon||'—'}</td>
-      <td style="padding:7px 8px;color:#555;">${s.email||'—'}</td>
-      <td style="padding:7px 8px;color:var(--orange);font-size:11px;">${s.werk&&s.werk.length?s.werk.join(', '):'—'}</td>
+      <td style="padding:7px 8px;">
+        <div style="font-weight:600;color:#000033;">${s.naam}${s.club?' <span style="font-size:11px;color:#888;font-weight:400;">('+s.club+')</span>':''}${s.fromRes?' <span style="font-size:10px;color:var(--orange);">●</span>':''}</div>
+        ${s.ouder?'<div style="font-size:11px;color:#888;margin-top:2px;">👤 '+s.ouder+'</div>':''}
+      </td>
+      <td style="padding:7px 8px;">
+        ${s.telefoon?'<div style="font-size:12px;color:#555;">📱 '+s.telefoon+'</div>':''}
+        ${s.email?'<div style="font-size:12px;color:#555;">✉️ '+s.email+'</div>':''}
+      </td>
+      <td style="padding:7px 8px;">
+        ${s.werk&&s.werk.length?'<div style="display:flex;flex-wrap:wrap;gap:3px;">'+s.werk.map(w=>'<span style="background:#fff8f5;border:1px solid rgba(232,87,10,.2);color:var(--orange);font-size:10px;padding:2px 6px;border-radius:10px;">'+w+'</span>').join('')+'</div>':'<span style="color:#ddd;font-size:11px;">—</span>'}
+        ${s.opmerking?'<div style="font-size:11px;color:#888;margin-top:3px;">💬 '+s.opmerking+'</div>':''}
+      </td>
       <td style="padding:7px 8px;white-space:nowrap;">
         <button onclick="editSpeler('${s.id}')" style="background:none;border:1px solid #ddd;border-radius:6px;padding:3px 7px;cursor:pointer;font-size:11px;color:#888;margin-right:4px;">✏️</button>
         <button onclick="deleteSpeler('${s.id}')" style="background:none;border:1px solid #ffcccc;border-radius:6px;padding:3px 7px;cursor:pointer;font-size:11px;color:#ff4444;">✕</button>
