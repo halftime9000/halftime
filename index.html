@@ -1746,6 +1746,10 @@ function renderAdmin(){
       if (!grouped[key]) grouped[key] = [];
       grouped[key].push(r);
     });
+    // Sort each day by start time
+    Object.keys(grouped).forEach(k => {
+      grouped[k].sort((a,b) => (a.start||'00:00').localeCompare(b.start||'00:00'));
+    });
 
     rl.innerHTML = Object.entries(grouped).map(([date, list]) => {
       const [y,m,d] = date !== 'Onbekend' ? date.split('-') : ['','',''];
@@ -1791,8 +1795,8 @@ function renderAdmin(){
         </div>`;
       }).join('');
 
-      return `<div style="margin-bottom:16px;border-radius:10px;overflow:hidden;border:1px solid ${isPastDay?'rgba(255,68,68,.2)':'rgba(37,162,68,.2)'};">
-        <div style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.5px;padding:6px 12px;background:${isPastDay?'rgba(255,68,68,.7)':'rgba(37,162,68,.8)'};">
+      return `<div style="margin-bottom:16px;border-radius:10px;overflow:hidden;border:1px solid ${isPastDay?'rgba(255,68,68,.3)':'rgba(37,162,68,.3)'};background:${isPastDay?'rgba(255,68,68,.04)':'rgba(37,162,68,.04)'};">
+        <div style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.5px;padding:7px 12px;background:${isPastDay?'#e05555':'#25a244'};">
           ${dayName} ${d?d+'/'+m+'/'+y:'Onbekend'} ${isPastDay?'· voorbij':''}
         </div>
         ${rows}
