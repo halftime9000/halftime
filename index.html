@@ -672,6 +672,11 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   .training-dot.done { background:var(--orange); }
   .training-count { font-size:11px; color:#888; margin-left:6px; }
 
+
+  .quick-modal-ov { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:99999; display:none; align-items:center; justify-content:center; padding:20px; }
+  .quick-modal-ov.show { display:flex; }
+  .quick-modal { background:#fff; border-radius:16px; padding:28px; width:100%; max-width:420px; }
+
 </style>
 </head>
 <body>
@@ -1173,6 +1178,31 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   </div>
 </div>
 
+
+<!-- QUICK BOOKING MODAL -->
+<div class="quick-modal-ov" id="quick-booking-ov">
+  <div class="quick-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#000033;margin:0;">SNELLE BOEKING</h3>
+      <button onclick="closeQuickBooking()" style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;">&times;</button>
+    </div>
+    <div id="quick-slot-info" style="background:#f5f5f0;border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:#555;"></div>
+    <input class="speler-input" id="quick-naam" placeholder="Naam speler" style="width:100%;margin-bottom:10px;">
+    <input class="speler-input" id="quick-ouder" placeholder="Naam ouder (optioneel)" style="width:100%;margin-bottom:10px;">
+    <input class="speler-input" id="quick-telefoon" placeholder="Telefoonnummer (optioneel)" style="width:100%;margin-bottom:10px;">
+    <select class="speler-input" id="quick-service" style="width:100%;margin-bottom:16px;">
+      <option value="Prive Training 1on1">Prive Training 1on1 - &euro;65</option>
+      <option value="5 Trainingen">5 Trainingen - &euro;295</option>
+      <option value="2on1">2on1 - &euro;70</option>
+      <option value="3on1">3on1 - &euro;75</option>
+      <option value="4on1">4on1 - &euro;80</option>
+      <option value="Core Stability">Core Stability - &euro;65</option>
+      <option value="5 Trainingen Core Stability">5 Trainingen Core Stability - &euro;295</option>
+    </select>
+    <button class="btn-add" onclick="saveQuickBooking()" style="width:100%;">+ BOEKING TOEVOEGEN</button>
+  </div>
+</div>
+
 <!-- MODAL -->
 <div class="modal-ov" id="modal-ov">
   <div class="modal">
@@ -1671,7 +1701,7 @@ function renderAdmin(){
         return `<div style="margin-bottom:14px;">
           <div style="font-size:11px;font-weight:700;color:#000033;text-transform:uppercase;letter-spacing:.5px;padding:6px 0 4px;border-bottom:1px solid #eee;margin-bottom:8px;">${dayName} ${d}/${m}/${y}</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            ${daySlots.map(s=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:${s.booked?'rgba(255,68,68,.08)':'rgba(232,87,10,.08)'};border:1px solid ${s.booked?'rgba(255,68,68,.25)':'rgba(232,87,10,.25)'};border-radius:20px;font-size:12px;">
+            ${daySlots.map(s=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:${s.booked?'rgba(255,68,68,.08)':'rgba(232,87,10,.08)'};border:1px solid ${s.booked?'rgba(255,68,68,.25)':'rgba(232,87,10,.25)'};border-radius:20px;font-size:12px;cursor:${s.booked?'default':'pointer'};" ${!s.booked?`onclick="openQuickBooking(${s.id})"`:''}>
               <span style="color:${s.booked?'var(--red)':'var(--orange)'};${s.booked?'text-decoration:line-through;opacity:.7;':''}">${s.start}</span>
               <span style="color:#888;font-size:11px;">${s.coach||'beide'}${s.booked?' 🔒':''}</span>
               <button onclick="delSlot(${s.id})" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:13px;padding:0;line-height:1;">✕</button>
@@ -3073,6 +3103,55 @@ function renderProgressDots(count, total) {
     dots += `<div class="training-dot${i < count ? ' done' : ''}"></div>`;
   }
   return `<div class="training-progress">${dots}<span class="training-count">${count}/${total}</span></div>`;
+}
+
+
+let quickSlot = null;
+
+function openQuickBooking(slotId) {
+  quickSlot = slots.find(s => s.id === slotId);
+  if (!quickSlot || quickSlot.booked) return;
+  const [y,m,d] = quickSlot.date.split('-');
+  document.getElementById('quick-slot-info').innerHTML =
+    '📅 ' + d + '/' + m + '/' + y + ' · ⏰ ' + quickSlot.start + ' - ' + quickSlot.end + ' · 👤 ' + (quickSlot.coach||'beide');
+  document.getElementById('quick-naam').value = '';
+  document.getElementById('quick-ouder').value = '';
+  document.getElementById('quick-telefoon').value = '';
+  document.getElementById('quick-booking-ov').classList.add('show');
+  setTimeout(() => document.getElementById('quick-naam').focus(), 100);
+}
+
+function closeQuickBooking() {
+  document.getElementById('quick-booking-ov').classList.remove('show');
+  quickSlot = null;
+}
+
+async function saveQuickBooking() {
+  const naam = document.getElementById('quick-naam').value.trim();
+  if (!naam) { showToast('Naam is verplicht'); return; }
+  const service = document.getElementById('quick-service').value;
+  const ouder = document.getElementById('quick-ouder').value.trim();
+  const telefoon = document.getElementById('quick-telefoon').value.trim();
+  const prices = {
+    'Prive Training 1on1':'€65','5 Trainingen':'€295',
+    '2on1':'€70','3on1':'€75','4on1':'€80',
+    'Core Stability':'€65','5 Trainingen Core Stability':'€295'
+  };
+  const res = {
+    id: Date.now(), name: naam, parent: ouder, phone: telefoon, email: '', age: '',
+    date: quickSlot.date, start: quickSlot.start, end: quickSlot.end,
+    type: quickSlot.type || '', coach: quickSlot.coach || '', service: service,
+    price: prices[service] || '', slotId: quickSlot.id, status: 'confirmed',
+    betaalMethod: '', betaalBedrag: '', betaalLocked: false, paid: false
+  };
+  quickSlot.booked = true;
+  await sbSaveSlot(quickSlot);
+  reservations.push(res);
+  await sbSaveReservation(res);
+  save();
+  closeQuickBooking();
+  renderAdmin();
+  showToast(naam + ' toegevoegd!');
 }
 
 // INIT
