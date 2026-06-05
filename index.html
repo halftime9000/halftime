@@ -97,7 +97,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
 .cal-day { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:10px; font-size:13px; font-weight:500; cursor:default; border:1px solid transparent; position:relative; }
 .cal-day.has-slots { cursor:pointer; color:#ffffff; font-weight:600; }
-.cal-day.has-slots::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--orange); transition:width .15s, height .15s; }
+.cal-day.has-slots::after { display:none; }
 .cal-day.has-slots:hover { background:transparent !important; font-size:18px; color:#fff; font-weight:700; }
 .cal-day.has-slots:hover::after { width:7px; height:7px; bottom:2px; }
 .cal-day.past { color:var(--border); }
@@ -1463,9 +1463,9 @@ function renderCal() {
     // Build inner content
     d.innerHTML = `<span>${day}</span>`;
     if(!isPast && hasS) {
-      d.innerHTML += `<span style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--orange);white-space:nowrap;">${freeSlots.length}</span>`;
+      d.innerHTML += `<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--orange);white-space:nowrap;font-weight:600;letter-spacing:0;">${freeSlots.length} vrij</span>`;
     } else if(isVolzet) {
-      d.innerHTML += `<span style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:7px;color:#ff4444;white-space:nowrap;font-weight:700;">VOLZET</span>`;
+      d.innerHTML += `<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:8px;color:#ff4444;white-space:nowrap;font-weight:700;">VOLZET</span>`;
     }
     
     if(!isPast&&hasS) d.onclick=()=>selDay(ds);
