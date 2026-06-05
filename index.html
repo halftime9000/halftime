@@ -1791,9 +1791,9 @@ function renderAdmin(){
         </div>`;
       }).join('');
 
-      return `<div style="margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;color:#000033;text-transform:uppercase;letter-spacing:.5px;padding:6px 0 4px;border-bottom:1px solid #eee;margin-bottom:6px;${isPastDay?'opacity:.6':''}">
-          ${dayName} ${d?d+'/'+m+'/'+y:'Onbekend'} ${isPastDay?'<span style="color:#aaa;font-size:10px;">(voorbij)</span>':''}
+      return `<div style="margin-bottom:16px;border-radius:10px;overflow:hidden;border:1px solid ${isPastDay?'rgba(255,68,68,.2)':'rgba(37,162,68,.2)'};">
+        <div style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.5px;padding:6px 12px;background:${isPastDay?'rgba(255,68,68,.7)':'rgba(37,162,68,.8)'};">
+          ${dayName} ${d?d+'/'+m+'/'+y:'Onbekend'} ${isPastDay?'· voorbij':''}
         </div>
         ${rows}
       </div>`;
