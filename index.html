@@ -1701,7 +1701,7 @@ function renderAdmin(){
         return `<div style="margin-bottom:14px;">
           <div style="font-size:11px;font-weight:700;color:#000033;text-transform:uppercase;letter-spacing:.5px;padding:6px 0 4px;border-bottom:1px solid #eee;margin-bottom:8px;">${dayName} ${d}/${m}/${y}</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            ${daySlots.map(s=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:${s.booked?'rgba(255,68,68,.08)':'rgba(232,87,10,.08)'};border:1px solid ${s.booked?'rgba(255,68,68,.25)':'rgba(232,87,10,.25)'};border-radius:20px;font-size:12px;cursor:${s.booked?'default':'pointer'};" onclick="${s.booked?'':'openQuickBooking('+s.id+')'}">              <span style="color:${s.booked?'var(--red)':'var(--orange)'};${s.booked?'text-decoration:line-through;opacity:.7;':''}">${s.start}</span>
+            ${daySlots.sort((a,b)=>a.start.localeCompare(b.start)).map(s=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:${s.booked?'rgba(255,68,68,.08)':'rgba(232,87,10,.08)'};border:1px solid ${s.booked?'rgba(255,68,68,.25)':'rgba(232,87,10,.25)'};border-radius:20px;font-size:12px;cursor:${s.booked?'default':'pointer'};" onclick="${s.booked?'':'openQuickBooking('+s.id+')'}">              <span style="color:${s.booked?'var(--red)':'var(--orange)'};${s.booked?'text-decoration:line-through;opacity:.7;':''}">${s.start}</span>
               <span style="color:#888;font-size:11px;">${s.coach||'beide'}${s.booked?' 🔒':''}</span>
               <button onclick="delSlot(${s.id})" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:13px;padding:0;line-height:1;">✕</button>
             </div>`).join('')}
