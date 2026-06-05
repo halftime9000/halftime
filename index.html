@@ -99,7 +99,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .cal-day.has-slots { cursor:pointer; color:#ffffff; font-weight:600; }
 .cal-day.has-slots::after { display:none; }
 .cal-day.has-slots:hover { background:transparent !important; font-size:18px; color:#fff; font-weight:700; }
-.cal-day.has-slots:hover::after { width:7px; height:7px; bottom:2px; }
+.cal-day.has-slots:hover::after { display:none; }
 .cal-day.past { color:var(--border); }
 .cal-day:not(.has-slots):not(.past):not(.sel) { color: #3a4070; }
 .cal-day.today, .cal-day.today.has-slots { border-color:transparent; color:#4CAF50 !important; background:transparent; font-weight:700; }
@@ -1463,7 +1463,7 @@ function renderCal() {
     // Build inner content
     d.innerHTML = `<span>${day}</span>`;
     if(!isPast && hasS) {
-      d.innerHTML += `<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--orange);white-space:nowrap;font-weight:600;letter-spacing:0;">${freeSlots.length} vrij</span>`;
+      d.innerHTML += `<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--orange);white-space:nowrap;font-weight:700;">${freeSlots.length} vrij</span>`;
     } else if(isVolzet) {
       d.innerHTML += `<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:8px;color:#ff4444;white-space:nowrap;font-weight:700;">VOLZET</span>`;
     }
