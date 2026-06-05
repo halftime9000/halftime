@@ -818,9 +818,12 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
             <option>U15+</option>
           </select>
         </div>
+        <div class="fg"><div class="section-header-req" style="margin-bottom:6px"><span class="req-label">Club <span style="font-size:10px;color:#aaa;font-weight:400;">(optioneel)</span></span></div>
+          <input type="text" id="f-club" placeholder="Naam van de club">
+        </div>
 
         <div class="fg">
-          <label style="display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Favoriete positie op veld <span class="req-star">✦</span></label>
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Favoriete positie op veld <span style="font-size:10px;color:#aaa;font-weight:400;">(optioneel)</span></label>
           <div onclick="toggleBookSec('pos-sec', this)" style="width:100%;padding:10px 14px;background:#fff;border:1px solid #ddd;border-radius:10px;color:#aaa;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;">
             <span class="pos-label">Kies één of meerdere</span>
             <span class="bk-arrow" style="font-size:11px;color:var(--orange);transition:transform .2s;">▼</span>
@@ -844,7 +847,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
         </div>
 
         <div class="fg" style="margin-top:4px;">
-          <label style="display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Sterke punten <span class="req-star">✦</span></label>
+          <label style="display:block;font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Sterke punten <span style="font-size:10px;color:#aaa;font-weight:400;">(optioneel)</span></label>
           <div onclick="toggleBookSec('sterke-sec', this)" style="width:100%;padding:10px 14px;background:#fff;border:1px solid #ddd;border-radius:10px;color:#aaa;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;">
             <span class="sterke-label">Kies één of meerdere</span>
             <span class="bk-arrow" style="font-size:11px;color:var(--orange);transition:transform .2s;">▼</span>
@@ -1496,6 +1499,7 @@ function save() {
 
 function submitBooking() {
   const name=document.getElementById('f-name').value.trim();
+  const club=document.getElementById('f-club')?.value.trim()||'';
   const parent=document.getElementById('f-parent-name')?document.getElementById('f-parent-name').value.trim():document.getElementById('f-parent')?document.getElementById('f-parent').value.trim():'';
   const age=document.getElementById('f-age').value;
   const phone=document.getElementById('f-phone').value.trim();
@@ -1505,21 +1509,19 @@ function submitBooking() {
   const positions=getChipValues('positions-group');
   const sterke=getChipValues('sterke-group');
   const werk=getChipValues('werk-group');
-  if(!selDate||!selSlot||!name||!age||(!phone&&!email)||!positions.length||!sterke.length||!werk.length){
+  if(!selDate||!selSlot||!name||!age||(!phone&&!email)||!werk.length){
     banner.classList.add('show');
     if(!selDate||!selSlot) return showToast(t('errslot'),true);
     if(!name) return showToast(t('errname'),true);
     if(!age) return showToast(t('errage'),true);
     if(!phone&&!email) return showToast(t('errcontact'),true);
-    if(!positions.length) return showToast('Kies een favoriete positie',true);
-    if(!sterke.length) return showToast('Kies minstens 1 sterk punt',true);
     if(!werk.length) return showToast('Kies minstens 1 werkpunt',true);
     return;
   }
   banner.classList.remove('show');
   const s = selSlot;
   s.booked = true;
-  const res={id:Date.now(),name,parent,age,phone,email,note,positions,sterke,werk,status:'confirmed',date:selDate,slotId:s.id,start:s.start,end:s.end,type:s.type,coach:selCoach||'',service:selectedService?serviceNames[selectedService]:'',price:selectedService?servicePrices[selectedService]:''};
+  const res={id:Date.now(),name,parent,age,phone,email,note,positions,sterke,werk,club,status:'confirmed',date:selDate,slotId:s.id,start:s.start,end:s.end,type:s.type,coach:selCoach||'',service:selectedService?serviceNames[selectedService]:'',price:selectedService?servicePrices[selectedService]:''};
   reservations.unshift(res);
   save();
   sbSaveReservation(res);
