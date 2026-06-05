@@ -1732,7 +1732,7 @@ function renderAdmin(){
         ${badge}
         <div style="font-weight:600;color:#000033;font-size:14px;">${r.name||'—'} <span style="color:#888;font-size:12px;font-weight:400;">${r.age||''}</span></div>
         <div style="color:#888;font-size:12px;margin-left:4px;">${d?'📅 '+d+'/'+m+'/'+y:''} ${r.start?'· '+r.start:''} ${r.coach?'· '+r.coach:''}</div>
-        ${(()=>{ const cnt=getTrainingCount(r.name,r.email); const pkg=getPackageSize(r.service); return cnt>1?renderProgressDots(cnt,Math.max(cnt,pkg>1?pkg:5)):''; })()}
+        ${(()=>{ const cnt=getTrainingCount(r.name,r.email); const pkg=getPackageSize(r.service); const isNew=r.date>='2026-06-05'; return pkg===5&&isNew?renderProgressDots(cnt,5):''; })()}
         <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
           ${acts}${wa}${deleteBtn}
           <span class="res-row-chevron">▼</span>
@@ -1966,7 +1966,7 @@ function onLogin() {
       const cnt = getTrainingCount(r.name, r.email);
       const pkg = getPackageSize(r.service);
       const statusLabel = r.status==='confirmed'?'Bevestigd':r.status==='cancelled'?'Geannuleerd':r.status==='rejected'?'Afgewezen':'In afwachting';
-      const progressHtml = renderProgressDots(cnt, Math.max(cnt, pkg>1?pkg:5));
+      const isNew = r.date >= '2026-06-05'; const progressHtml = pkg===5&&isNew ? renderProgressDots(cnt, 5) : '';
       return `<div class="past-res-row">
         <div class="past-res-date">📅 ${d}/${m}/${y} · ${r.start}–${r.end}</div>
         <div class="past-res-detail">${r.type} · ${r.coach||''} · ${r.service||''}</div>
@@ -2672,7 +2672,8 @@ function renderBetaling() {
             <td style="padding:8px;color:var(--orange);font-weight:600;">${r.price||'—'}</td>
             <td style="padding:8px;">${dot} ${methodLabel[m2]||m2}</td>
             <td style="padding:8px;font-weight:600;color:#000033;">${bedrag ? '€'+bedrag : '—'}</td>
-            <td style="padding:8px;">${(()=>{ const cnt=getTrainingCount(r.name,r.email); const pkg=getPackageSize(r.service); return pkg===5||cnt>1?renderProgressDots(cnt,Math.max(cnt,5)):''; })()}</td>
+            <td style="padding:8px;color:#888;font-size:12px;font-style:italic;">${r.note_admin||'—'}</td>
+            <td style="padding:8px;">${(()=>{ const cnt=getTrainingCount(r.name,r.email); const pkg=getPackageSize(r.service); const isNew=r.date>='2026-06-05'; return pkg===5&&isNew?renderProgressDots(cnt,5):''; })()}</td>
             <td style="padding:8px;">
 <div style="display:flex;gap:4px;">
                 <button onclick="unlockBetaling(${r.id})" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;color:#888;" title="Bewerken">✏️</button>
@@ -2713,6 +2714,11 @@ function renderBetaling() {
                 ${!m2||m2==='onbetaald'?'disabled':''}>
             </td>
             <td style="padding:8px;">
+              <input type="text" value="${r.note_admin||''}" placeholder="Opmerking..." 
+                oninput="setBetalingNote(${r.id},this.value)"
+                style="width:120px;padding:4px 8px;border:1px solid #ddd;border-radius:6px;font-size:12px;outline:none;">
+            </td>
+            <td style="padding:8px;">
 <div style="display:flex;gap:4px;">
                 ${m2 ? `<button onclick="lockBetaling(${r.id})" style="background:var(--orange);border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:#fff;white-space:nowrap;">✓ OK</button>` : ''}
                 <button onclick="deleteBetaling(${r.id})" style="background:none;border:1px solid #ffcccc;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;color:#ff4444;">✕</button>
@@ -2723,6 +2729,13 @@ function renderBetaling() {
       }).join('')}
     </tbody>
   </table>`;
+}
+
+function setBetalingNote(id, note) {
+  const r = reservations.find(r => r.id === id);
+  if (!r) return;
+  r.note_admin = note;
+  save(); sbSaveReservation(r);
 }
 
 function setBetalingCoach(id, coach) {
