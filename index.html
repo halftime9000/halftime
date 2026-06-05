@@ -2366,12 +2366,19 @@ function togglePw(inputId, btnId) {
 
 async function sbLoadData() {
   try {
-    const [slotsRes, resRes] = await Promise.all([
+    const [slotsRes, resRes, spelersRes] = await Promise.all([
       supa.from('slots').select('*'),
-      supa.from('reservations').select('*')
+      supa.from('reservations').select('*'),
+      supa.from('spelers').select('*')
     ]);
     if (slotsRes.data) slots = slotsRes.data.map(s => ({...s, id: Number(s.id), booked: s.booked === true || s.booked === 'true'}));
     if (resRes.data) reservations = resRes.data.map(r => ({...r, id: Number(r.id), slotId: Number(r.slot_id), betaalMethod: r.betaal_method || '', betaalBedrag: r.betaal_bedrag || '', betaalLocked: r.betaal_locked || false}));
+    if (spelersRes.data) {
+      spelers = spelersRes.data.filter(s => !s.hidden).map(s => s.data);
+      hiddenSpelers = spelersRes.data.filter(s => s.hidden).map(s => s.id);
+      localStorage.setItem('ht_spelers', JSON.stringify(spelers));
+      localStorage.setItem('ht_hidden_spelers', JSON.stringify(hiddenSpelers));
+    }
     renderCal();
     renderAdmin();
   } catch(e) { console.log('Supabase load error:', e); }
@@ -2524,7 +2531,28 @@ function sendCancelEmail(res) {
 let spelers = JSON.parse(localStorage.getItem('ht_spelers') || '[]');
 let hiddenSpelers = JSON.parse(localStorage.getItem('ht_hidden_spelers') || '[]');
 
-function saveSpelers() { localStorage.setItem('ht_spelers', JSON.stringify(spelers)); localStorage.setItem('ht_hidden_spelers', JSON.stringify(hiddenSpelers)); }
+function saveSpelers() {
+  localStorage.setItem('ht_spelers', JSON.stringify(spelers));
+  localStorage.setItem('ht_hidden_spelers', JSON.stringify(hiddenSpelers));
+  // Sync to Supabase
+  syncSpelersToSupabase();
+}
+
+async function syncSpelersToSupabase() {
+  try {
+    // Upsert all active spelers
+    const upserts = spelers.map(s => ({ id: String(s.id), data: s, hidden: false }));
+    // Add hidden entries
+    hiddenSpelers.forEach(id => {
+      if (!upserts.find(u => u.id === String(id))) {
+        upserts.push({ id: String(id), data: {}, hidden: true });
+      }
+    });
+    if (upserts.length > 0) {
+      await supa.from('spelers').upsert(upserts);
+    }
+  } catch(e) { console.log('Spelers sync error:', e); }
+}
 
 function addSpeler() {
   const naam = document.getElementById('sp-naam').value.trim();
