@@ -2372,12 +2372,16 @@ async function sbLoadData() {
       supa.from('spelers').select('*')
     ]);
     if (slotsRes.data) slots = slotsRes.data.map(s => ({...s, id: Number(s.id), booked: s.booked === true || s.booked === 'true'}));
-    if (resRes.data) reservations = resRes.data.map(r => ({...r, id: Number(r.id), slotId: Number(r.slot_id), betaalMethod: r.betaal_method || '', betaalBedrag: r.betaal_bedrag || '', betaalLocked: r.betaal_locked || false}));
-    if (spelersRes.data) {
+    if (resRes.data) reservations = resRes.data.map(r => ({...r, id: Number(r.id), slotId: Number(r.slot_id), betaalMethod: r.betaal_method || '', betaalBedrag: r.betaal_bedrag || '', betaalLocked: r.betaal_locked || false, jaar: r.jaar || 0}));
+    if (spelersRes.data && spelersRes.data.length > 0) {
       spelers = spelersRes.data.filter(s => !s.hidden).map(s => s.data);
       hiddenSpelers = spelersRes.data.filter(s => s.hidden).map(s => s.id);
       localStorage.setItem('ht_spelers', JSON.stringify(spelers));
       localStorage.setItem('ht_hidden_spelers', JSON.stringify(hiddenSpelers));
+    }
+    // If Supabase empty, keep localStorage data and sync it up
+    if (spelersRes.data && spelersRes.data.length === 0 && spelers.length > 0) {
+      syncSpelersToSupabase();
     }
     renderCal();
     renderAdmin();
@@ -2408,6 +2412,7 @@ async function sbSaveReservation(res) {
       positions: res.positions, sterke: res.sterke, werk: res.werk,
       note: res.note, status: res.status, paid: res.paid || false,
       note_admin: res.note_admin || '', slot_id: res.slotId,
+      jaar: res.jaar || null,
       betaal_method: res.betaalMethod || '', betaal_bedrag: res.betaalBedrag || '',
       betaal_locked: res.betaalLocked || false
     });
@@ -2596,7 +2601,7 @@ function renderSpelers() {
         id: 'res_' + r.id,
         naam: r.name,
         ouder: r.parent || '',
-        jaar: r.age ? geboortejaarFromAge(r.age) : 0,
+        jaar: r.jaar || (r.age ? geboortejaarFromAge(r.age) : 0),
         telefoon: r.phone || '',
         email: r.email || '',
         werk: r.werk || [],
@@ -3107,10 +3112,24 @@ function saveEditSpeler() {
     existing.email = email;
     existing.club = club;
     existing.werk = werk;
+    // Also update jaar in matching reservations
+    if (jaar) {
+      reservations.filter(r => r.name && r.name.toLowerCase() === naam.toLowerCase()).forEach(async r => {
+        r.jaar = jaar;
+        await sbSaveReservation(r);
+      });
+    }
   } else {
     // fromRes - convert to manual speler
     const newSpeler = { id: Date.now(), naam, ouder, jaar, telefoon, email, club, werk, opmerking };
     spelers.push(newSpeler);
+    // Also update jaar in matching reservations
+    if (jaar) {
+      reservations.filter(r => r.name && r.name.toLowerCase() === naam.toLowerCase()).forEach(async r => {
+        r.jaar = jaar;
+        await sbSaveReservation(r);
+      });
+    }
     // Add original res_id to hidden list so it doesn't duplicate
     if (!hiddenSpelers.includes(String(id))) hiddenSpelers.push(String(id));
   }
