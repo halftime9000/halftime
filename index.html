@@ -1648,7 +1648,8 @@ function togglePaid(id) {
 }
 
 function renderAdmin(){
-  ss('st-slots',slots.filter(s=>!s.booked).length);
+  const todayStr = new Date().toISOString().split('T')[0];
+  ss('st-slots',slots.filter(s=>!s.booked&&s.date>=todayStr).length);
   ss('st-pend',reservations.filter(r=>r.status==='pending').length);
   ss('st-conf',reservations.filter(r=>r.status==='confirmed').length);
   document.getElementById('badge-slots').textContent=slots.length+' slots';
@@ -1658,7 +1659,8 @@ function renderAdmin(){
     if(!slots.length){ sl.innerHTML=`<div class="empty">${t('noslots')}</div>`; }
     else {
       const grouped={};
-      slots.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(s=>{
+      const todayDate = new Date().toISOString().split('T')[0];
+      slots.slice().filter(s=>s.date>=todayDate).sort((a,b)=>a.date.localeCompare(b.date)).forEach(s=>{
         if(!grouped[s.date]) grouped[s.date]=[];
         grouped[s.date].push(s);
       });
