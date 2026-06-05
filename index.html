@@ -102,7 +102,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .cal-day.has-slots:hover::after { display:none; }
 .cal-day.past { color:var(--border); }
 .cal-day:not(.has-slots):not(.past):not(.sel) { color: #3a4070; }
-.cal-day.today, .cal-day.today.has-slots { border-color:transparent; color:#4CAF50 !important; background:transparent; font-weight:700; }
+.cal-day.today, .cal-day.today.has-slots { border-color:#000033 !important; color:#000033 !important; background:transparent; font-weight:800; }
 .cal-day.sel { background:transparent !important; color:#fff !important; font-weight:700; font-size:18px; }
 .cal-day.sel::after { display:block; width:5px; height:5px; bottom:3px; left:50%; transform:translateX(-50%); }
 .slots-sec { padding:0 24px 20px; }
@@ -1458,12 +1458,12 @@ function renderCal() {
     const isToday=ds===todayLocal;
     const d=document.createElement('div');
     d.className='cal-day'+(isPast?' past':'')+(hasS?' has-slots':'')+(isToday?' today':'')+(selDate===ds?' sel':'');
-    if(isToday) { d.setAttribute('style','color:#4CAF50 !important;font-weight:800 !important;font-size:18px !important;'); }
+    if(isToday) { d.setAttribute('style','color:#000033 !important;font-weight:800 !important;font-size:18px !important;border:2px solid #000033 !important;border-radius:10px !important;'); }
     
     // Build inner content
     d.innerHTML = `<span>${day}</span>`;
     if(!isPast && hasS) {
-      d.innerHTML += `<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--orange);white-space:nowrap;font-weight:700;">${freeSlots.length} vrij</span>`;
+      d.innerHTML += `<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:10px;color:#25a244;white-space:nowrap;font-weight:700;">${freeSlots.length} vrij</span>`;
     } else if(isVolzet) {
       d.innerHTML += `<span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:8px;color:#ff4444;white-space:nowrap;font-weight:700;">VOLZET</span>`;
     }
