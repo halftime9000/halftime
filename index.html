@@ -2967,7 +2967,7 @@ const historischeBetalingen = [{"id": 90000, "name": "Laurens", "date": "2025-10
 async function loadHistorischeBetalingen() {
   let added = 0;
   for (const r of historischeBetalingen) {
-    if (!reservations.find(x => x.id === r.id)) {
+    if (!reservations.find(x => Number(x.id) === Number(r.id))) {
       reservations.push(r);
       await sbSaveReservation(r);
       added++;
