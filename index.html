@@ -420,9 +420,12 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   nav { padding:0 12px; height:56px; }
   .nav-logo img { height:34px; }
   .nav-tabs { gap:2px; }
-  .nav-tab { padding:6px 10px; font-size:12px; }
+  .nav-tab { padding:6px 8px; font-size:0; }
+  .nav-tab::before { font-size:18px; }
+  #tab-home::before { content:'🏠'; }
+  #tab-contact::before { content:'📞'; }
   .nav-tab-book { font-size:13px !important; padding:6px 12px !important; }
-  .nav-login-btn { padding:6px 12px; font-size:12px; }
+  .nav-login-btn { padding:6px 10px; font-size:12px; }
 
   /* LANDING */
   .landing { padding:24px 16px; min-height:calc(100vh - 56px); }
@@ -453,7 +456,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
   .booking-grid { grid-template-columns:1fr; gap:16px; }
   .page-header h1 { font-size:34px; }
   .form-card { position:static; }
-  .slots-grid { grid-template-columns:repeat(4,1fr); gap:6px; }
+  .slots-grid { grid-template-columns:repeat(3,1fr); gap:6px; }
 
   /* ADMIN */
   .admin-wrap { padding:20px 16px; }
@@ -808,7 +811,10 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
         </div>
 
       </div>
-      <div class="form-card">
+      <div class="form-card" id="form-card" style="opacity:0.4;pointer-events:none;transition:opacity .3s;">
+        <div id="form-hint" style="background:#fff8f5;border:1px solid var(--orange);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#666;text-align:center;">
+          📅 Kies eerst een datum en tijdslot in de kalender
+        </div>
         <h3 id="f-title">JOUW BOEKING</h3>
         <div class="sel-info">
           <div class="si-row"><span id="sl-date">Datum</span><span class="si-val" id="si-date">—</span></div>
@@ -1486,6 +1492,7 @@ function renderCal() {
 function selDay(ds) {
   selDate=ds; selSlot=null;
   ss('si-time','—'); ss('si-type','—');
+  var fc=document.getElementById('form-card');if(fc){fc.style.opacity='0.4';fc.style.pointerEvents='none';} var fh=document.getElementById('form-hint');if(fh)fh.style.display='block';
   renderCal(); 
   renderSlots(ds);
   // scroll to slots
@@ -1509,7 +1516,7 @@ function renderSlots(ds) {
     const c=document.createElement('div');
     c.className='slot'+(s.booked?' full':'')+(selSlot&&selSlot.id===s.id?' sel':'');
     c.textContent=s.start+(s.booked?' ✗':'');
-    if(!s.booked) c.onclick=()=>{selSlot=s;ss('si-time',s.start+' – '+s.end);ss('si-type',s.type);renderSlots(ds);};
+    if(!s.booked) c.onclick=()=>{selSlot=s;ss('si-time',s.start+' – '+s.end);ss('si-type',s.type);renderSlots(ds);var fc=document.getElementById('form-card');if(fc){fc.style.opacity='1';fc.style.pointerEvents='all';} var fh=document.getElementById('form-hint');if(fh)fh.style.display='none'; if(window.innerWidth<=768){setTimeout(function(){var el=document.getElementById('form-card');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},100);} };
     grid.appendChild(c);
   });
 }
