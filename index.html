@@ -763,7 +763,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
         <span class="landing-loci">📍 Sportstraat, 9920 Lievegem</span>
         <span class="landing-loci">📍 LVGYM, Grote Baan 358, 9930 Lievegem</span>
       </div>
-      <div style="margin-top:24px;width:100%;max-width:480px;margin-left:auto;margin-right:auto;position:relative;">
+      <div style="margin-top:16px;width:100%;max-width:320px;margin-left:auto;margin-right:auto;position:relative;">
         <div id="reviews-marquee" style="position:relative;min-height:80px;"></div>
         <div id="reviews-dots" style="display:flex;gap:6px;justify-content:center;margin-top:10px;"></div>
       </div>
@@ -2549,11 +2549,11 @@ function showReviewSlide(idx) {
   if (!el) return;
   const r = _rvData[idx];
   const stars = '★'.repeat(r.stars || 5) + '☆'.repeat(5 - (r.stars || 5));
-  el.innerHTML = `<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 20px;animation:fadeIn .4s ease;">
-    <div style="color:#FFC107;font-size:14px;flex-shrink:0;">${stars}</div>
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:10px;padding:9px 14px;animation:fadeIn .4s ease;">
+    <div style="color:#FFC107;font-size:11px;flex-shrink:0;">${stars}</div>
     <div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.92);font-weight:600;">"${r.text}"</div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">${r.name} &nbsp;·&nbsp; ${r.date} &nbsp;·&nbsp; Geverifieerd</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.92);font-weight:600;">"${r.text}"</div>
+      <div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:1px;">${r.name} · ${r.date}</div>
     </div>
   </div>`;
   if (dots && _rvData.length > 1) {
