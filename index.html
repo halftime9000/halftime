@@ -1404,6 +1404,58 @@ function setLang(l, btn) {
     'th-sub': isEn ? 'Your booking is confirmed! The details have been sent to your email address.\n\nSee you on the pitch! ⚽' : 'Je reservering is bevestigd! De details zijn naar jouw e-mailadres verstuurd.\n\nTot op het veld! ⚽'
   };
   Object.entries(els).forEach(([id, txt]) => { const el = document.getElementById(id); if(el) el.textContent = txt; });
+
+  // Nav login label
+  const navLoginLabel = document.getElementById('nav-login-label');
+  if (navLoginLabel && !navLoginLabel.closest('.logged')) {
+    navLoginLabel.textContent = isEn ? 'Login' : 'Inloggen';
+  }
+
+  // Login page tabs
+  const loginTabs = document.querySelectorAll('.login-tab');
+  if (loginTabs[0]) loginTabs[0].textContent = isEn ? 'Login' : 'Inloggen';
+  if (loginTabs[1]) loginTabs[1].textContent = isEn ? 'Register' : 'Registreren';
+
+  // Login form headings & placeholders
+  const loginH2s = document.querySelectorAll('.login-form h2');
+  if (loginH2s[0]) loginH2s[0].textContent = isEn ? 'WELCOME BACK' : 'WELKOM TERUG';
+  if (loginH2s[1]) loginH2s[1].textContent = isEn ? 'CREATE ACCOUNT' : 'ACCOUNT AANMAKEN';
+
+  // Login button
+  const loginBtns = document.querySelectorAll('.login-btn');
+  if (loginBtns[0]) loginBtns[0].textContent = isEn ? 'LOGIN' : 'INLOGGEN';
+  if (loginBtns[1]) loginBtns[1].textContent = isEn ? 'REGISTER' : 'REGISTREREN';
+
+  // WhatsApp share button
+  const waBtn = document.getElementById('wa-share-btn');
+  if (waBtn) {
+    const msg = isEn
+      ? 'Book your private training at Half-Time 👉 https://halftime.bodyprove.be'
+      : 'Boek je privétraining bij Half-Time 👉 https://halftime.bodyprove.be';
+    waBtn.href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+    waBtn.querySelector('span') && (waBtn.querySelector('span').textContent = isEn ? 'Share booking link' : 'Deel de boekingslink');
+  }
+
+  // Review modal texts
+  const rvModal = document.getElementById('review-modal-ov');
+  if (rvModal) {
+    rvModal.querySelector('h3').textContent = isEn ? 'YOUR REVIEW' : 'JOUW REVIEW';
+    rvModal.querySelector('p').textContent = isEn ? 'Share your Half-Time experience' : 'Deel jouw ervaring met Half-Time';
+    const labels = rvModal.querySelectorAll('label');
+    if (labels[0]) labels[0].textContent = isEn ? 'Name' : 'Naam';
+    if (labels[1]) labels[1].textContent = isEn ? 'Review' : 'Review';
+    if (labels[2]) labels[2].textContent = isEn ? 'Rating' : 'Beoordeling';
+    const inputs = rvModal.querySelectorAll('input, textarea');
+    if (inputs[0]) inputs[0].placeholder = isEn ? 'Your name' : 'Jouw naam';
+    if (inputs[1]) inputs[1].placeholder = isEn ? 'Tell us about your training...' : 'Vertel over jouw training...';
+    const btns = rvModal.querySelectorAll('button');
+    if (btns[0]) btns[0].textContent = isEn ? 'SEND' : 'VERSTUUR';
+    if (btns[1]) btns[1].textContent = isEn ? 'Cancel' : 'Annuleren';
+  }
+
+  // Review open button
+  const rvBtn = document.querySelector('[onclick="openReviewModal()"]');
+  if (rvBtn) rvBtn.innerHTML = (isEn ? '✏️ Leave a review' : '✏️ Laat een review achter');
 }
 
 function navTo(id, btn) {
@@ -3684,30 +3736,30 @@ sbLoadData().then(() => { loadHistorischeBetalingen(); renderAdmin(); if(documen
 
 <!-- REVIEW MODAL -->
 <div id="review-modal-ov" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);">
-  <div style="background:#fff;border-radius:24px 24px 0 0;padding:32px 24px 48px;width:100%;max-width:480px;animation:slideUp .3s ease;">
+  <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px 20px 32px;width:100%;max-width:480px;animation:slideUp .3s ease;">
     <div style="width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 20px;"></div>
-    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#000033;letter-spacing:1px;margin-bottom:4px;">JOUW REVIEW</h3>
-    <p style="font-size:13px;color:#888;margin-bottom:20px;">Deel jouw ervaring met Half-Time</p>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;">Naam</label>
-      <input id="rv-name" type="text" placeholder="Jouw naam" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;">
+    <h3 style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:#000033;letter-spacing:1px;margin-bottom:2px;">JOUW REVIEW</h3>
+    <p style="font-size:12px;color:#888;margin-bottom:14px;">Deel jouw ervaring met Half-Time</p>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:10px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px;">Naam</label>
+      <input id="rv-name" type="text" placeholder="Jouw naam" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;">
     </div>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;">Review</label>
-      <textarea id="rv-text" placeholder="Vertel over jouw training..." rows="3" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;resize:none;"></textarea>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:10px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px;">Review</label>
+      <textarea id="rv-text" placeholder="Vertel over jouw training..." rows="2" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:none;"></textarea>
     </div>
-    <div style="margin-bottom:20px;">
-      <label style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;">Beoordeling</label>
+    <div style="margin-bottom:14px;">
+      <label style="font-size:10px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Beoordeling</label>
       <div id="rv-stars-ui" style="display:flex;gap:6px;">
-        <span onclick="setRvStars(1)" class="rv-star" style="font-size:28px;cursor:pointer;color:#ddd;">★</span>
-        <span onclick="setRvStars(2)" class="rv-star" style="font-size:28px;cursor:pointer;color:#ddd;">★</span>
-        <span onclick="setRvStars(3)" class="rv-star" style="font-size:28px;cursor:pointer;color:#ddd;">★</span>
-        <span onclick="setRvStars(4)" class="rv-star" style="font-size:28px;cursor:pointer;color:#ddd;">★</span>
-        <span onclick="setRvStars(5)" class="rv-star" style="font-size:28px;cursor:pointer;color:#ddd;">★</span>
+        <span onclick="setRvStars(1)" class="rv-star" style="font-size:22px;cursor:pointer;color:#ddd;">★</span>
+        <span onclick="setRvStars(2)" class="rv-star" style="font-size:22px;cursor:pointer;color:#ddd;">★</span>
+        <span onclick="setRvStars(3)" class="rv-star" style="font-size:22px;cursor:pointer;color:#ddd;">★</span>
+        <span onclick="setRvStars(4)" class="rv-star" style="font-size:22px;cursor:pointer;color:#ddd;">★</span>
+        <span onclick="setRvStars(5)" class="rv-star" style="font-size:22px;cursor:pointer;color:#ddd;">★</span>
       </div>
     </div>
-    <button onclick="submitPublicReview()" style="width:100%;padding:14px;background:#E8570A;color:#fff;border:none;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;cursor:pointer;margin-bottom:10px;">VERSTUUR</button>
-    <button onclick="closeReviewModal()" style="width:100%;padding:11px;background:transparent;border:1px solid #ddd;border-radius:12px;color:#888;font-size:14px;cursor:pointer;">Annuleren</button>
+    <button onclick="submitPublicReview()" style="width:100%;padding:11px;background:#E8570A;color:#fff;border:none;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;margin-bottom:8px;">VERSTUUR</button>
+    <button onclick="closeReviewModal()" style="width:100%;padding:9px;background:transparent;border:1px solid #ddd;border-radius:10px;color:#888;font-size:13px;cursor:pointer;">Annuleren</button>
   </div>
 </div>
 
