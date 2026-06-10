@@ -196,11 +196,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .toast.err { border-color:var(--red); color:var(--red); }
 
 ::-webkit-scrollbar { width:6px; }
-@keyframes marqueeScroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-#reviews-marquee:hover { animation-play-state: paused; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
 
 @media(max-width:768px) {
@@ -751,9 +747,9 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
         <span class="landing-loci">📍 Sportstraat, 9920 Lievegem</span>
         <span class="landing-loci">📍 LVGYM, Grote Baan 358, 9930 Lievegem</span>
       </div>
-      <div style="margin-top:24px;width:100%;overflow:hidden;position:relative;display:flex;justify-content:center;">
-        <div id="reviews-marquee" style="display:flex;gap:16px;width:max-content;animation:marqueeScroll 18s linear infinite;justify-content:center;">
-        </div>
+      <div style="margin-top:24px;width:100%;max-width:480px;margin-left:auto;margin-right:auto;position:relative;">
+        <div id="reviews-marquee" style="position:relative;min-height:80px;"></div>
+        <div id="reviews-dots" style="display:flex;gap:6px;justify-content:center;margin-top:10px;"></div>
       </div>
       <div style="margin-top:10px;text-align:center;">
         <button onclick="openReviewModal()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);border-radius:20px;color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;cursor:pointer;padding:7px 18px;font-family:'DM Sans',sans-serif;letter-spacing:.5px;transition:all .2s;">✏️ Laat een review achter</button>
@@ -2463,28 +2459,39 @@ async function loadReviews() {
   renderAdminReviews(data);
 }
 
+let _rvData = [], _rvIdx = 0, _rvTimer = null;
+
 function renderMarquee(reviews) {
+  _rvData = reviews;
+  _rvIdx = 0;
+  if (_rvTimer) clearInterval(_rvTimer);
+  if (!reviews.length) return;
+  showReviewSlide(0);
+  if (reviews.length > 1) {
+    _rvTimer = setInterval(() => {
+      _rvIdx = (_rvIdx + 1) % _rvData.length;
+      showReviewSlide(_rvIdx);
+    }, 4000);
+  }
+}
+
+function showReviewSlide(idx) {
   const el = document.getElementById('reviews-marquee');
-  if (!el || !reviews.length) return;
-  const makeCard = (r) => {
-    const stars = '★'.repeat(r.stars || 5) + '☆'.repeat(5 - (r.stars || 5));
-    return `<div style="display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:10px 18px;flex-shrink:0;">
-      <div style="display:flex;gap:1px;color:#FFC107;font-size:13px;">${stars}</div>
-      <div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.92);font-weight:600;">"${r.text}"</div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">${r.name} &nbsp;·&nbsp; ${r.date} &nbsp;·&nbsp; Geverifieerd</div>
-      </div>
-    </div>`;
-  };
-  // duplicate for seamless loop only if enough reviews
-  const cards = reviews.map(makeCard).join('');
-  if (reviews.length < 3) {
-    el.innerHTML = cards;
-    el.style.animation = 'none';
-    el.style.justifyContent = 'center';
-  } else {
-    el.innerHTML = cards + cards;
-    el.style.animation = '';
+  const dots = document.getElementById('reviews-dots');
+  if (!el) return;
+  const r = _rvData[idx];
+  const stars = '★'.repeat(r.stars || 5) + '☆'.repeat(5 - (r.stars || 5));
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:12px 20px;animation:fadeIn .4s ease;">
+    <div style="color:#FFC107;font-size:14px;flex-shrink:0;">${stars}</div>
+    <div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.92);font-weight:600;">"${r.text}"</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;">${r.name} &nbsp;·&nbsp; ${r.date} &nbsp;·&nbsp; Geverifieerd</div>
+    </div>
+  </div>`;
+  if (dots && _rvData.length > 1) {
+    dots.innerHTML = _rvData.map((_, i) =>
+      `<div onclick="_rvIdx=${i};showReviewSlide(${i});" style="width:6px;height:6px;border-radius:50%;background:${i===idx?'rgba(255,255,255,0.85)':'rgba(255,255,255,0.3)'};cursor:pointer;transition:background .3s;"></div>`
+    ).join('');
   }
 }
 
